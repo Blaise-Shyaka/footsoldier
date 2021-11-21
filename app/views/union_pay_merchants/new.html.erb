@@ -61,6 +61,7 @@
                 selected: 'Not active yet',
                 label: "Contactless card purchase test transaction result?",
                 prompt: "Select one option" %>
+  <%= f.input :contactless_code, label: "Contactless transaction result code", placeholder: "Eg: 55, 51, ..." %>
   <%= f.input :contactless_other_card_schemes_accepted, 
               collection: [
                 'VISA',
@@ -111,6 +112,7 @@
                 ],
                 label: "Card purchase test transaction result?",
                 prompt: "Select one option" %>
+  <%= f.input :chip_in_pos_code, label: "Transaction result code", placeholder: "Eg: 55, 51, ..." %>
   <%= f.input :chip_in_pos_other_card_schemes_accepted, 
               collection: [
                 'VISA',
@@ -162,6 +164,7 @@
                 selected: 'Other tests succeeded',
                 label: "Card purchase test transaction result?",
                 prompt: "Select one option" %>
+  <%= f.input :swipe_code, label: "Transaction result code", placeholder: "Eg: 55, 51, ..." %>
   <%= f.input :swipe_other_card_schemes_accepted, 
               collection: [
                 'VISA',
