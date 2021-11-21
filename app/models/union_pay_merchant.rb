@@ -1,0 +1,2 @@
+class UnionPayMerchant < ApplicationRecord
+end
