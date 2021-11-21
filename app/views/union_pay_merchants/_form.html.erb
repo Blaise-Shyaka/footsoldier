@@ -1,0 +1,17 @@
+<%= form_with(model: union_pay_merchant) do |form| %>
+  <% if union_pay_merchant.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(union_pay_merchant.errors.count, "error") %> prohibited this union_pay_merchant from being saved:</h2>
+
+      <ul>
+        <% union_pay_merchant.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>
