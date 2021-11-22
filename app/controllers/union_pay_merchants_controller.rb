@@ -21,10 +21,11 @@ class UnionPayMerchantsController < ApplicationController
 
   # POST /union_pay_merchants or /union_pay_merchants.json
   def create
-    @union_pay_merchant = UnionPayMerchant.new(union_pay_merchant_params)
+    @user = current_user
+    @union_pay_merchant = @user.union_pay_merchants.new(union_pay_merchant_params)
 
     respond_to do |format|
-      if @union_pay_merchant.save
+      if @union_pay_merchant.save!
         format.html { redirect_to @union_pay_merchant, notice: "Union pay merchant was successfully created." }
         format.json { render :show, status: :created, location: @union_pay_merchant }
       else
@@ -64,6 +65,36 @@ class UnionPayMerchantsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def union_pay_merchant_params
-      params.fetch(:union_pay_merchant, {})
+      params.require(:union_pay_merchant)
+      .permit(:merchant_name,
+      :address,
+      :merchant_category,
+      :merchant_accept_international_payment,
+      :merchant_has_multiple_acquirers,
+      :contactless_upi_accepted,
+      :contactless_why_upi_not_accepted,
+      :contactless_purchase_transaction_result,
+      :contactless_other_card_schemes_accepted,
+      :contactless_test_scenario,
+      :chip_in_pos_upi_accepted,
+      :chip_in_pos_why_upi_not_accepted,
+      :chip_in_pos_purchase_transaction_result,
+      :chip_in_pos_other_card_schemes_accepted,
+      :chip_in_pos_test_scenario,
+      :swipe_upi_accepted,
+      :swipe_why_upi_not_accepted,
+      :swipe_purchase_transaction_result,
+      :swipe_other_card_schemes_accepted,
+      :swipe_test_scenario,
+      :upi_decal_displayed_before_visit,
+      :upi_decal_displayed_after_visit,
+      :is_contactless_mark_shown_upi_single_decal,
+      :is_visa_or_mastercard_contactless_mark_shown_on_single_decal,
+      :is_contactless_mark_shown_on_integrated_decal,
+      :is_visa_or_mastercard_displayed,
+      :special_comments,
+      :contactless_code,
+      :chip_in_pos_code,
+      :swipe_code)
     end
 end

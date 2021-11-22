@@ -12,9 +12,10 @@
   <tbody>
     <% @union_pay_merchants.each do |union_pay_merchant| %>
       <tr>
+        <td><%= union_pay_merchant.merchant_name %><td>
         <td><%= link_to 'Show', union_pay_merchant %></td>
         <td><%= link_to 'Edit', edit_union_pay_merchant_path(union_pay_merchant) %></td>
-        <td><%= link_to 'Destroy', union_pay_merchant, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <td><%= link_to 'Delete', union_pay_merchant, method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>
     <% end %>
   </tbody>

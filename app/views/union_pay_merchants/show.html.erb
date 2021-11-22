@@ -1,4 +1,53 @@
 <p id="notice"><%= notice %></p>
+<br>
+<%= link_to 'Add new merchant', new_union_pay_merchant_path %> |
+<%= link_to 'View all merchants', union_pay_merchants_path %>
+<br>
 
-<%= link_to 'Edit', edit_union_pay_merchant_path(@union_pay_merchant) %> |
-<%= link_to 'Back', union_pay_merchants_path %>
+<h2><%=@union_pay_merchant.merchant_name%></h2>
+
+<ul>
+  <h4>General information</h4>
+  <li>Merchant name: <%= @union_pay_merchant.merchant_name %></li>
+  <li>Merchant category: <%= @union_pay_merchant.merchant_category %></li>
+  <li>Merchant accept internation payments?: <%= @union_pay_merchant.merchant_accept_international_payment %></li>
+  <li>Merchant has multiple acquirers? List them: <%= @union_pay_merchant.merchant_has_multiple_acquirers.join(',') %></li>
+
+  <h4>Contactless transactions</h4>
+
+  <li>UnionPay accepted and tested?: <%= @union_pay_merchant.contactless_upi_accepted %></li>
+  <li>If you chose option 2 on the previous question, why is UnionPay not accepted and test transactions not allowed?: <%= @union_pay_merchant.contactless_why_upi_not_accepted %></li>
+  <li>Card purchase test transaction result?: <%= @union_pay_merchant.contactless_purchase_transaction_result %></li>
+  <li>Contactless test transaction code: <%= @union_pay_merchant.contactless_code %></li>
+  <li>Other card schemes accepted?: <%= @union_pay_merchant.contactless_other_card_schemes_accepted %></li>
+  <li>Test transaction scenario?: <%= @union_pay_merchant.contactless_test_scenario %></li>
+
+  <h4>Result after inserting card into the POS</h4>
+
+  <li>UnionPay accepted and tested?: <%= @union_pay_merchant.chip_in_pos_upi_accepted %></li>
+  <li>If you chose option 2 on the previous question, why is UnionPay not accepted and test transactions not allowed?: <%= @union_pay_merchant.chip_in_pos_why_upi_not_accepted %></li>
+  <li>Card purchase test transaction result?: <%= @union_pay_merchant.chip_in_pos_purchase_transaction_result %></li>
+  <li>Contactless test transaction code: <%= @union_pay_merchant.chip_in_pos_code %></li>
+  <li>Other card schemes accepted?: <%= @union_pay_merchant.chip_in_pos_other_card_schemes_accepted %></li>
+  <li>Test transaction scenario?: <%= @union_pay_merchant.chip_in_pos_test_scenario %></li>
+
+  <h4>Result after swiping card</h4>
+
+  <li>UnionPay accepted and tested?: <%= @union_pay_merchant.swipe_upi_accepted %></li>
+  <li>If you chose option 2 on the previous question, why is UnionPay not accepted and test transactions not allowed?: <%= @union_pay_merchant.swipe_why_upi_not_accepted %></li>
+  <li>Card purchase test transaction result?: <%= @union_pay_merchant.swipe_purchase_transaction_result %></li>
+  <li>Contactless test transaction code: <%= @union_pay_merchant.swipe_code %></li>
+  <li>Other card schemes accepted?: <%= @union_pay_merchant.swipe_other_card_schemes_accepted %></li>
+  <li>Test transaction scenario?: <%= @union_pay_merchant.swipe_test_scenario %></li>
+
+  <h4>Decal/Signage Display</h4>
+
+  <li>UnionPay decal displayed before the visit?: <%= @union_pay_merchant.upi_decal_displayed_before_visit %></li>
+  <li>UnionPay decal displayed after the visit?: <%= @union_pay_merchant.upi_decal_displayed_after_visit %></li>
+  <li>The contactless mark is shown with UnionPay single decal?: <%= @union_pay_merchant.is_contactless_mark_shown_upi_single_decal %></li>
+  <li>VISA or Mastercard Contactless mark is shown on a single decal of Visa or Mastercard?: <%= @union_pay_merchant.is_visa_or_mastercard_contactless_mark_shown_on_single_decal %></li>
+  <li>The contactless mark is shown on the Integrated Decal of multiple card schemes?: <%= @union_pay_merchant.is_contactless_mark_shown_on_integrated_decal %></li>
+  <li>Visa OR Mastercard decal displayed?: <%= @union_pay_merchant.is_visa_or_mastercard_displayed %></li>
+  <li>Special comments?: <%= @union_pay_merchant.special_comments %></li>
+
+</ul>

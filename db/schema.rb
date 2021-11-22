@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_11_21_221544) do
+ActiveRecord::Schema.define(version: 2021_11_22_013342) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -20,7 +20,6 @@ ActiveRecord::Schema.define(version: 2021_11_21_221544) do
     t.string "address", default: "", null: false
     t.string "merchant_category", default: "", null: false
     t.string "merchant_accept_international_payment", default: "", null: false
-    t.string "merchant_has_multiple_acquirers", default: "", null: false
     t.string "contactless_upi_accepted", default: "", null: false
     t.string "contactless_why_upi_not_accepted", default: "", null: false
     t.string "contactless_purchase_transaction_result", default: "", null: false
@@ -49,6 +48,7 @@ ActiveRecord::Schema.define(version: 2021_11_21_221544) do
     t.string "contactless_code", default: ""
     t.string "chip_in_pos_code", default: ""
     t.string "swipe_code", default: ""
+    t.string "merchant_has_multiple_acquirers", default: [], array: true
   end
 
   create_table "users", force: :cascade do |t|
@@ -62,6 +62,10 @@ ActiveRecord::Schema.define(version: 2021_11_21_221544) do
     t.datetime "remember_created_at"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.boolean "is_promoter", default: false
+    t.boolean "works_with_engen", default: false
+    t.boolean "works_with_upi_merchants", default: false
+    t.boolean "works_with_upi_banks", default: false
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
