@@ -1,5 +1,5 @@
 <h2>Approve User</h2>
-<%= simple_form_for :approve_user, url: admin_approve_user_approve_path do |f| %>
+<%= simple_form_for :approve_user, url: admin_approve_user_approve_user_path do |f| %>
   <%= f.input :email, required: true %>
   <%= f.input :is_promoter?,
               collection: [true, false],

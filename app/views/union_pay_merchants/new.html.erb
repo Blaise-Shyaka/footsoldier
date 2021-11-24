@@ -1,8 +1,8 @@
 <h1>New Union Pay Merchant</h1>
 
 <%= simple_form_for @union_pay_merchant do |f| %>
-  <%= f.input :merchant_name %>
-  <%= f.input :address %>
+  <%= f.input :merchant_name %><br>
+  <%= f.input :address %><br>
   <%= f.input :merchant_category, 
               collection: [
                 'Shopping and souvenir stores',
@@ -13,7 +13,7 @@
                 'Entertainment and scenic spots',
                 'Transportation'
                 ], 
-                prompt: "Select merchant category" %>
+                prompt: "Select merchant category" %><br>
   <%= f.input :merchant_accept_international_payment, 
               collection: [
                 'Yes',
@@ -23,9 +23,9 @@
                 'No - Cash only'
                 ],
                 label: "Does the merchant accept international payment solutions (bank cards or digital wallets)?",
-                prompt: "Select one option" %>
+                prompt: "Select one option" %><br>
   <%= f.input :merchant_has_multiple_acquirers, as: :text,
-              label: 'Does the merchant has multiple acquirers?'%>
+              label: 'Does the merchant has multiple acquirers?'%><br>
   <h4>Contactless card acceptance testing (Skip this section)</h4>
   <%= f.input :contactless_upi_accepted, 
               collection: [
@@ -37,7 +37,7 @@
                 ],
                 label: "Contactless UnionPay accepted and tested?",
                 selected: 'Not active yet',
-                prompt: "Select one option" %>
+                prompt: "Select one option" %><br>
   <%= f.input :contactless_why_upi_not_accepted, 
               collection: [
                 'Interview refused by the merchant',
@@ -48,7 +48,7 @@
                 ],
                 selected: 'Not active yet',
                 label: "If you chose option 2 on the previous question, why is UnionPay contactless not accepted and test transactions not allowed?",
-                prompt: "Select one option" %>
+                prompt: "Select one option" %><br>
   <%= f.input :contactless_purchase_transaction_result, 
               collection: [
                 'Approved',
@@ -58,8 +58,8 @@
                 ],
                 selected: 'Not active yet',
                 label: "Contactless card purchase test transaction result?",
-                prompt: "Select one option" %>
-  <%= f.input :contactless_code, label: "Contactless transaction result code", placeholder: "Eg: 55, 51, ..." %>
+                prompt: "Select one option" %><br>
+  <%= f.input :contactless_code, label: "Contactless transaction result code", placeholder: "Eg: 55, 51, ..." %><br>
   <%= f.input :contactless_other_card_schemes_accepted, 
               collection: [
                 'VISA',
@@ -70,7 +70,7 @@
                 ],
                 selected: 'Not active yet',
                 label: "Other contactless card schemes accepted?",
-                prompt: "Select one option" %>
+                prompt: "Select one option" %><br>
   <%= f.input :contactless_test_scenario, 
               collection: [
                 'Mystery test',
@@ -79,7 +79,7 @@
                 ],
                 selected: 'Not active yet',
                 label: "Contactless test transaction scenario?",
-                prompt: "Select one option" %>
+                prompt: "Select one option" %><br>
   <h4>Insert card into the POS and proceed with questions</h4>
   <%= f.input :chip_in_pos_upi_accepted, 
               collection: [
@@ -90,7 +90,7 @@
                 'Contactless succeeded'
                 ],
                 label: "UnionPay accepted and tested?",
-                prompt: "Select one option" %>
+                prompt: "Select one option" %><br>
   <%= f.input :chip_in_pos_why_upi_not_accepted, 
               collection: [
                 'Interview refused by the merchant',
@@ -100,7 +100,7 @@
                 'Contactless succeeded'
                 ],
                 label: "If you chose option 2 on the previous question, why is UnionPay not accepted and test transactions not allowed?",
-                prompt: "Select one option" %>
+                prompt: "Select one option" %><br>
   <%= f.input :chip_in_pos_purchase_transaction_result, 
               collection: [
                 'Approved',
@@ -109,8 +109,8 @@
                 'Contactless succeeded'
                 ],
                 label: "Card purchase test transaction result?",
-                prompt: "Select one option" %>
-  <%= f.input :chip_in_pos_code, label: "Transaction result code", placeholder: "Eg: 55, 51, ..." %>
+                prompt: "Select one option" %><br>
+  <%= f.input :chip_in_pos_code, label: "Transaction result code", placeholder: "Eg: 55, 51, ..." %><br>
   <%= f.input :chip_in_pos_other_card_schemes_accepted, 
               collection: [
                 'VISA',
@@ -120,7 +120,7 @@
                 'Contactless succeeded'
                 ],
                 label: "Card schemes accepted?",
-                prompt: "Select one option" %>
+                prompt: "Select one option" %><br>
   <%= f.input :chip_in_pos_test_scenario, 
               collection: [
                 'Mystery test',
@@ -140,7 +140,7 @@
                 ],
                 label: "UnionPay accepted and tested?",
                 selected: 'Other tests succeeded',
-                prompt: "Select one option" %>
+                prompt: "Select one option" %><br>
   <%= f.input :swipe_why_upi_not_accepted, 
               collection: [
                 'Interview refused by the merchant',
@@ -151,7 +151,7 @@
                 ],
                 selected: 'Other tests succeeded',
                 label: "If you chose option 2 on the previous question, why is UnionPay not accepted and test transactions not allowed?",
-                prompt: "Select one option" %>
+                prompt: "Select one option" %><br>
   <%= f.input :swipe_purchase_transaction_result, 
               collection: [
                 'Approved',
@@ -161,8 +161,8 @@
                 ],
                 selected: 'Other tests succeeded',
                 label: "Card purchase test transaction result?",
-                prompt: "Select one option" %>
-  <%= f.input :swipe_code, label: "Transaction result code", placeholder: "Eg: 55, 51, ..." %>
+                prompt: "Select one option" %><br>
+  <%= f.input :swipe_code, label: "Transaction result code", placeholder: "Eg: 55, 51, ..." %><br>
   <%= f.input :swipe_other_card_schemes_accepted, 
               collection: [
                 'VISA',
@@ -173,7 +173,7 @@
                 ],
                 selected: 'Other tests succeeded',
                 label: "Other card schemes accepted?",
-                prompt: "Select one option" %>
+                prompt: "Select one option" %><br>
   <%= f.input :swipe_test_scenario, 
               collection: [
                 'Mystery test',
@@ -182,7 +182,7 @@
                 ],
                 selected: 'Other tests succeeded',
                 label: "Test transaction scenario?",
-                prompt: "Select one option" %>
+                prompt: "Select one option" %><br>
 
   <h4>Decal/Signage Display</h4>
 
@@ -193,14 +193,14 @@
                 'No UnionPay decal'
                 ],
                 label: "UnionPay decal displayed before the visit?",
-                prompt: "Select one option" %>
+                prompt: "Select one option" %><br>
   <%= f.input :upi_decal_displayed_after_visit, 
               collection: [
                 'Yes',
                 'No'
                 ],
                 label: "If you chose option 3 in the previous question, UnionPay decal posted after the visit?",
-                prompt: "Select one option" %>
+                prompt: "Select one option" %><br>
   <%= f.input :is_visa_or_mastercard_displayed, 
               collection: [
                 'Both of them posted',
@@ -209,14 +209,14 @@
                 'Neither of them posted'
                 ],
                 label: "VISA OR Mastercard decal displayed?",
-                prompt: "Select one option" %>
+                prompt: "Select one option" %><br>
   <%= f.input :is_contactless_mark_shown_upi_single_decal, 
               collection: [
                 'Yes',
                 'No'
                 ],
                 label: "The contactless mark is shown with UnionPay single decal?",
-                prompt: "Select one option" %>
+                prompt: "Select one option" %><br>
   <%= f.input :is_visa_or_mastercard_contactless_mark_shown_on_single_decal, 
               collection: [
                 'Both of them shown',
@@ -225,15 +225,15 @@
                 'Neither of them shown'
                 ],
                 label: "VISA or Mastercard Contactless mark is shown on a single decal of Visa or Mastercard?",
-                prompt: "Select one option" %>
+                prompt: "Select one option" %><br>
   <%= f.input :is_contactless_mark_shown_on_integrated_decal, 
               collection: [
                 'Yes',
                 'No'
                 ],
                 label: "The contactless mark is shown on the Integrated Decal of multiple card schemes?",
-                prompt: "Select one option" %>
-  <%= f.input :special_comments, as: :text %>
+                prompt: "Select one option" %><br>
+  <%= f.input :special_comments, as: :text %><br>
   <%= f.button :submit %>
 <% end %>
 <br>

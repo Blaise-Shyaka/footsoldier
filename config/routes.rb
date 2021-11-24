@@ -7,7 +7,7 @@ Rails.application.routes.draw do
   end
   resources :users, only: [:show]
   namespace :admin do
-    post "approve_user/approve"
+    post "approve_user/approve_user"
     get "approve_user/approve"
   end
 end

@@ -1,14 +1,19 @@
 class Admin::ApproveUserController < AdminController
-  before_action :verify_admin_credentials, only: :approve
-
+  before_action :verify_admin_credentials, only: :approve_user
+  
   def approve
+  end
+
+  def approve_user
     @user = user_exists
 
     if @user.length.zero?
       flash.now[:alert] = "User doesn't exist!"
+      render :approve
       return
     elsif @user.update(approve_user_params.except(:admin_secret_key))
-      flash.now[:notice] = "User updated successfully!"
+      flash[:notice] = "User updated successfully!"
+      render :approve
     else
       render :approve, flash.now[:alert] = "Failed to update user"
     end
