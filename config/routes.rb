@@ -6,4 +6,8 @@ Rails.application.routes.draw do
     root :to => 'devise/sessions#new'
   end
   resources :users, only: [:show]
+  namespace :admin do
+    post "approve_user/approve"
+    get "approve_user/approve"
+  end
 end
