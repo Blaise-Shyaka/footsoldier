@@ -10,10 +10,26 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_11_22_013342) do
+ActiveRecord::Schema.define(version: 2021_11_24_203330) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "union_pay_banks", force: :cascade do |t|
+    t.string "bank_name", default: "", null: false
+    t.string "atm_location", default: "", null: false
+    t.string "upi_accepted", default: "", null: false
+    t.text "why_test_not_allowed", default: "", null: false
+    t.string "transaction_result", default: "", null: false
+    t.string "transaction_code", default: "", null: false
+    t.string "upi_decal_displayed_before_visit", default: "", null: false
+    t.string "upi_decal_displayed_after_visit", default: "", null: false
+    t.string "is_visa_or_mastercard_displayed", default: "", null: false
+    t.string "special_comments", default: "", null: false
+    t.integer "user_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
 
   create_table "union_pay_merchants", force: :cascade do |t|
     t.string "merchant_name", default: "", null: false

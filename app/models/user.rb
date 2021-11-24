@@ -4,5 +4,6 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
   has_many :union_pay_merchants
+  has_many :union_pay_banks
   validates_length_of :telephone_number, minimum: 10, maximum: 10
 end

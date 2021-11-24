@@ -1,0 +1,47 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Union Pay Banks</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Bank name</th>
+      <th>Atm location</th>
+      <th>Upi accepted</th>
+      <th>Why test not allowed</th>
+      <th>Transaction result</th>
+      <th>Transaction code</th>
+      <th>Upi decal displayed before visit</th>
+      <th>Upi decal displayed after visit</th>
+      <th>Is visa or mastercard displayed</th>
+      <th>Special comments</th>
+      <th>User</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @union_pay_banks.each do |union_pay_bank| %>
+      <tr>
+        <td><%= union_pay_bank.bank_name %></td>
+        <td><%= union_pay_bank.atm_location %></td>
+        <td><%= union_pay_bank.upi_accepted %></td>
+        <td><%= union_pay_bank.why_test_not_allowed %></td>
+        <td><%= union_pay_bank.transaction_result %></td>
+        <td><%= union_pay_bank.transaction_code %></td>
+        <td><%= union_pay_bank.upi_decal_displayed_before_visit %></td>
+        <td><%= union_pay_bank.upi_decal_displayed_after_visit %></td>
+        <td><%= union_pay_bank.is_visa_or_mastercard_displayed %></td>
+        <td><%= union_pay_bank.special_comments %></td>
+        <td><%= union_pay_bank.user_id %></td>
+        <td><%= link_to 'Show', union_pay_bank %></td>
+        <td><%= link_to 'Edit', edit_union_pay_bank_path(union_pay_bank) %></td>
+        <td><%= link_to 'Destroy', union_pay_bank, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Union Pay Bank', new_union_pay_bank_path %>
