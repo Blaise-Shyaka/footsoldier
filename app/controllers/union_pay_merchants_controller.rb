@@ -1,5 +1,6 @@
 class UnionPayMerchantsController < ApplicationController
   before_action :set_union_pay_merchant, only: %i[ show edit update destroy ]
+  before_action :verify_promoter_credentials
 
   # GET /union_pay_merchants or /union_pay_merchants.json
   def index
@@ -96,5 +97,12 @@ class UnionPayMerchantsController < ApplicationController
       :contactless_code,
       :chip_in_pos_code,
       :swipe_code)
+    end
+
+    def verify_promoter_credentials
+      unless current_user.is_promoter && current_user.works_with_upi_merchants
+        flash[:alert] = "Ooooops ... You don't work with merchants"
+        redirect_to user_path(current_user)
+      end
     end
 end

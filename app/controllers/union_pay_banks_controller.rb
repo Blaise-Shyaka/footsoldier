@@ -1,5 +1,6 @@
 class UnionPayBanksController < ApplicationController
   before_action :set_union_pay_bank, only: %i[ show edit update destroy ]
+  # before_action :verify_promoter_credentials
 
   # GET /union_pay_banks or /union_pay_banks.json
   def index
@@ -65,5 +66,12 @@ class UnionPayBanksController < ApplicationController
     # Only allow a list of trusted parameters through.
     def union_pay_bank_params
       params.require(:union_pay_bank).permit(:bank_name, :atm_location, :upi_accepted, :why_test_not_allowed, :transaction_result, :transaction_code, :upi_decal_displayed_before_visit, :upi_decal_displayed_after_visit, :is_visa_or_mastercard_displayed, :special_comments)
+    end
+
+    def verify_promoter_credentials
+      unless current_user.is_promoter && current_user.works_with_upi_banks
+        flash[:alert] = "Ooooops ... You don't work with banks"
+        redirect_to user_path(current_user)
+      end
     end
 end
