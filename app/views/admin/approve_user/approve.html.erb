@@ -1,0 +1,26 @@
+<h2>Approve User</h2>
+<%= simple_form_for :approve_user, url: admin_approve_user_approve_user_path do |f| %>
+  <%= f.input :email, required: true %>
+  <%= f.input :is_promoter?,
+              collection: [true, false],
+              label: "Is Promoter?",
+              required: true,
+              prompt: "Select Option"%>
+  <%= f.input :works_with_engen,
+              collection: [true, false],
+              label: "Promoter Works with ENGEN?",
+              required: true,
+              prompt: "Select Option"%>
+  <%= f.input :works_with_upi_merchants,
+              collection: [true, false],
+              label: "Promoter Works with UPI Merchants?",
+              required: true,
+              prompt: "Select Option"%>
+  <%= f.input :works_with_upi_banks,
+              collection: [true, false],
+              label: "Promoter Works with UPI Banks?",
+              required: true,
+              prompt: "Select Option"%>
+  <%= f.input :admin_secret_key, required: true %>
+  <%= f.button :submit %>
+<% end %>

@@ -1,0 +1,2 @@
+module UnionPayBanksHelper
+end

@@ -1,0 +1,60 @@
+
+<%= simple_form_for(@union_pay_bank) do |f| %>
+  <%= f.error_notification %>
+  <%= f.error_notification message: f.object.errors[:base].to_sentence if f.object.errors[:base].present? %>
+
+  <div class="form-inputs">
+    <%= f.input :bank_name %><br>
+    <%= f.input :atm_location %><br>
+    <%= f.input :upi_accepted,
+                collection: [
+                  'UnionPay Accepted/ Tested',
+                  'UnionPay not accepted/ Tested',
+                  'Test not allowed'
+                ],
+                label: "UnionPay accepted and tested?",
+                required: true,
+                prompt: 'Select option' %><br>
+    <%= f.input :why_test_not_allowed,
+                label: "If you chose option 3 on the previous question, why is the test not allowed?" %><br>
+    <%= f.input :transaction_result,
+                collection: [
+                  'Approved',
+                  'Failed',
+                  'Test not allowed'
+                ],
+                label: 'Card test transaction result?',
+                required: true,
+                prompt: 'Select option' %><br>
+    <%= f.input :transaction_code,
+                placeholder: 'Eg: 55, 51, ...' %><br>
+    <%= f.input :upi_decal_displayed_before_visit,
+                collection: [
+                  'Physical decal',
+                  'Electronic decal',
+                  'No UnionPay decal'
+                ],
+                label: 'UnionPay decal displayed before the visit?',
+                required: true,
+                prompt: 'Select option' %><br>
+    <%= f.input :upi_decal_displayed_after_visit,
+                collection: [
+                  'Yes',
+                  'No'
+                ],
+                label: 'If you chose option 3 in the previous question, UnionPay decal posted after the visit?',
+                prompt: 'Select option' %><br>
+    <%= f.input :is_visa_or_mastercard_displayed,
+                collection: [
+                  'Yes',
+                  'No'
+                ],
+                required: true,
+                prompt: 'Select option' %><br>
+    <%= f.input :special_comments, as: :text %><br>
+  </div>
+
+  <div class="form-actions">
+    <%= f.button :submit %>
+  </div><br>
+<% end %>
