@@ -5,7 +5,8 @@
 
   <div class="form-inputs">
     <%= f.input :bank_name %><br>
-    <%= f.input :atm_location %><br>
+    <%= f.input :atm_location,
+                label: "ATM Location" %><br>
     <%= f.input :upi_accepted,
                 collection: [
                   'UnionPay Accepted/ Tested',
@@ -42,7 +43,7 @@
                   'Yes',
                   'No'
                 ],
-                label: 'If you chose option 3 in the previous question, UnionPay decal posted after the visit?',
+                label: 'If you chose option 3 in the previous question, UnionPay decal branded after your visit?',
                 prompt: 'Select option' %><br>
     <%= f.input :is_visa_or_mastercard_displayed,
                 collection: [
@@ -55,6 +56,6 @@
   </div>
 
   <div class="form-actions">
-    <%= f.button :submit %>
+    <%= f.button :submit, "Submit" %>
   </div><br>
 <% end %>
