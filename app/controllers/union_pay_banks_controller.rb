@@ -1,6 +1,6 @@
 class UnionPayBanksController < ApplicationController
   before_action :set_union_pay_bank, only: %i[ show edit update destroy ]
-  # before_action :verify_promoter_credentials
+  before_action :verify_promoter_credentials
 
   # GET /union_pay_banks or /union_pay_banks.json
   def index

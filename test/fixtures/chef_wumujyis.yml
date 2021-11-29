@@ -1,0 +1,17 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  vehicle_type: MyString
+  fueled_value: 1
+  plate_number: MyString
+  customer_name: MyString
+  telephone_number: MyString
+  service_station_name: MyString
+
+two:
+  vehicle_type: MyString
+  fueled_value: 1
+  plate_number: MyString
+  customer_name: MyString
+  telephone_number: MyString
+  service_station_name: MyString

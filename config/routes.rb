@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :chef_wumujyis
   resources :union_pay_banks
   resources :union_pay_merchants
   devise_for :users, :controllers => { registrations: 'users/registrations' }

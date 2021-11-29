@@ -1,7 +1,8 @@
-<h1>New Union Pay Merchant</h1>
+<h1>Union Pay International Merchant Form</h1>
 
 <%= simple_form_for @union_pay_merchant do |f| %>
-  <%= f.input :merchant_name %><br>
+  <%= f.input :merchant_name,
+              label: "Merchant Name/Business Name" %><br>
   <%= f.input :address %><br>
   <%= f.input :merchant_category, 
               collection: [
@@ -199,7 +200,7 @@
                 'Yes',
                 'No'
                 ],
-                label: "If you chose option 3 in the previous question, UnionPay decal posted after the visit?",
+                label: "If you chose option 3 in the previous question, UnionPay decal branded after your visit?",
                 prompt: "Select one option" %><br>
   <%= f.input :is_visa_or_mastercard_displayed, 
               collection: [
@@ -234,7 +235,7 @@
                 label: "The contactless mark is shown on the Integrated Decal of multiple card schemes?",
                 prompt: "Select one option" %><br>
   <%= f.input :special_comments, as: :text %><br>
-  <%= f.button :submit %>
+  <%= f.button :submit, "Submit" %>
 <% end %>
 <br>
 <%= link_to 'View all merchants', union_pay_merchants_path %>
