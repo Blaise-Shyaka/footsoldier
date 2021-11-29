@@ -4,7 +4,7 @@ class ChefWumujyisController < ApplicationController
 
   # GET /chef_wumujyis or /chef_wumujyis.json
   def index
-    @chef_wumujyis = ChefWumujyi.all
+    @chef_wumujyis = current_user.chef_wumujyis
   end
 
   # GET /chef_wumujyis/1 or /chef_wumujyis/1.json
@@ -13,7 +13,7 @@ class ChefWumujyisController < ApplicationController
 
   # GET /chef_wumujyis/new
   def new
-    @chef_wumujyi = ChefWumujyi.new
+    @chef_wumujyi = current_user.chef_wumujyis.new
   end
 
   # GET /chef_wumujyis/1/edit
@@ -22,7 +22,7 @@ class ChefWumujyisController < ApplicationController
 
   # POST /chef_wumujyis or /chef_wumujyis.json
   def create
-    @chef_wumujyi = ChefWumujyi.new(chef_wumujyi_params)
+    @chef_wumujyi = current_user.chef_wumujyis.new(chef_wumujyi_params)
 
     respond_to do |format|
       if @chef_wumujyi.save
