@@ -4,6 +4,8 @@ class ApplicationController < ActionController::Base
       new_union_pay_merchant_path
     elsif current_user.is_promoter && current_user.works_with_upi_banks
       new_union_pay_bank_path
+    elsif current_user.is_promoter && current_user.works_with_engen
+      new_chef_wumujyi_path
     else
       user_path(@user)
     end

@@ -1,0 +1,2 @@
+module ChefWumujyisHelper
+end

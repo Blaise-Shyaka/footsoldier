@@ -1,0 +1,80 @@
+
+<%= simple_form_for(@chef_wumujyi) do |f| %>
+  <%= f.error_notification %>
+  <%= f.error_notification message: f.object.errors[:base].to_sentence if f.object.errors[:base].present? %>
+
+  <div class="form-inputs">
+    <%= f.input :vehicle_type,
+                collection: [
+                  'Moto Driver',
+                  'Taxi Driver',
+                  'Bus Driver',
+                  'Truck Driver',
+                  'Private'
+                ],
+                required: true,
+                prompt: 'Select option' %>
+    <%= f.input :fueled_value, required: true %>
+    <%= f.input :plate_number, 
+                minlength: 5,
+                maxlength: 8,
+                required: true %>
+    <%= f.input :customer_name, required: true %>
+    <%= f.input :telephone_number,
+                minlength: 10,
+                maxlength: 10,
+                required: true %>
+    <%= f.input :service_station_name,
+                collection: [
+                  'ENGEN BISHENYI',
+                  'ENGEN BUGARAMA',
+                  'ENGEN BUTARE',
+                  'ENGEN BUTARE 2',
+                  'ENGEN BYUMBA',
+                  'ENGEN BYUMBA 2',
+                  'ENGEN FREEZONE',
+                  'ENGEN GACULIRO',
+                  'ENGEN GIKONDO',
+                  'ENGEN GISENYI',
+                  'ENGEN GITARAMA',
+                  'ENGEN GITIKINYONI',
+                  'ENGEN GITIKINYONI 2',
+                  'ENGEN KABARORE',
+                  'ENGEN KABEZA',
+                  'ENGEN KACYIRU',
+                  'ENGEN KAMEMBE',
+                  'ENGEN KAMONYI',
+                  'ENGEN KANOGO',
+                  'ENGEN KAYONZA',
+                  'ENGEN KAYONZA 2',
+                  'ENGEN KIBAGABAGA',
+                  'ENGEN KICUKIRO ',
+                  'ENGEN KICUKIRO CENTRE',
+                  'ENGEN KICUKIRO IPRC',
+                  'ENGEN KICUKIRO SONATUBE',
+                  'ENGEN KIMIRONKO',
+                  'ENGEN KINYINYA',
+                  'ENGEN MASAKA',
+                  'ENGEN MUSANZE',
+                  'ENGEN NGOMA',
+                  'ENGEN NYABUGOGO',
+                  'ENGEN NYAGATARE',
+                  'ENGEN NYAGATARE 2',
+                  'ENGEN NYAMATA',
+                  'ENGEN POIDS LOURDS',
+                  'ENGEN RUBAVU',
+                  'ENGEN RUBAVU 2',
+                  'ENGEN RUBENGERA',
+                  'ENGEN RUHANGO',
+                  'ENGEN RUSORORO',
+                  'ENGEN RWAMAGANA',
+                  'ENGEN SAINT FAMILLE'
+                ],
+                prompt: 'Select option',
+                required: true %>
+  </div>
+
+  <div class="form-actions">
+    <%= f.button :submit, 'Submit' %>
+  </div>
+<% end %>
