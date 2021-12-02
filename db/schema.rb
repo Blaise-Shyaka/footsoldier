@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_12_01_161457) do
+ActiveRecord::Schema.define(version: 2021_12_02_101957) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -95,6 +95,8 @@ ActiveRecord::Schema.define(version: 2021_12_01_161457) do
     t.boolean "works_with_engen", default: false
     t.boolean "works_with_upi_merchants", default: false
     t.boolean "works_with_upi_banks", default: false
+    t.boolean "is_upi_client", default: false
+    t.boolean "is_engen_client", default: false
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end

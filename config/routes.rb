@@ -12,4 +12,9 @@ Rails.application.routes.draw do
     post "approve_user/approve_user"
     get "approve_user/approve"
   end
+
+  namespace :union_pay do
+    get "reports/merchants"
+    get "reports/banks"
+  end
 end
