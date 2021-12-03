@@ -24,7 +24,7 @@ class UnionPay::ReportsController < UnionPayController
 
     @transactions_with_approved_result =
       percentage_of(UnionPayMerchant.where(chip_in_pos_purchase_transaction_result: 'Approved').length, 
-                    (UnionPayMerchant.all.length)
+                    UnionPayMerchant.all.length)
 
     @merchants_accepting_visa_only =
       percentage_of(UnionPayMerchant.where(chip_in_pos_other_card_schemes_accepted: 'VISA').length, 
