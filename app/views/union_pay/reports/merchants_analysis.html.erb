@@ -1,0 +1,50 @@
+<p>
+  <%= link_to 'Merchants Report', union_pay_reports_merchants_path %> | 
+  <%= link_to 'ATMs/Banks Report', union_pay_reports_banks_path %> |
+  <%= link_to 'Merchants Report Analysis', union_pay_reports_merchants_analysis_path %> |
+  <%= link_to 'ATM/Banks Report Analysis', union_pay_reports_banks_analysis_path %>
+</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Total number of merchants visited</th>
+      <th>Number of merchants who accept international payments</th>
+      <th>Number of merchants who accept UPI Cards - Test was not allowed</th>
+      <th>Number of merchants who accept UPI Cards - Test allowed</th>
+      <th>Number of tests where transaction result is "Approved"</th>
+      <th>Number of merchants who accept ONLY VISA</th>
+      <th>Number of merchants who accept ONLY Mastercard</th>
+      <th>Number of merchants who accept both VISA and Mastercard</th>
+      <th>Number of merchants who had UPI physical decal displayed before this exercise</th>
+      <th>Number of merchants who had UPI electronic decal displayed before this exercise</th>
+      <th>Number of merchants who displayed UPI decal after this exercise</th>
+      <th>Number of merchants who have ONLY VISA decal displayed</th>
+      <th>Number of merchants who have ONLY Mastercard decal displayed</th>
+      <th>Number of merchants who have both VISA and Mastercard decal displayed</th>
+      <th>Number of merchants who have UPI contactless mark shown on the decal</th>
+      <th>Number of merchants who have both VISA and Mastercard contactless mark shown on the decal</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr>
+      <td><%= UnionPayMerchant.all.length%></td>
+      <td><%= @merchants_accepting_international_payments %></td>
+      <td><%= @merchant_accept_upi_cards_test_not_allowed %></td>
+      <td><%= @merchant_accept_upi_cards_test_allowed %></td>
+      <td><%= @transactions_with_approved_result %></td>
+      <td><%= @merchants_accepting_visa_only %></td>
+      <td><%= @merchants_accepting_mastercard_only %></td>
+      <td><%= @merchants_accepting_both_visa_and_mastercard %></td>
+      <td><%= @physical_decal_displayed_before_campaign %></td>
+      <td><%= @electronic_decal_displayed_before_campaign %></td>
+      <td><%= @upi_decal_displayed_after_visit %></td>
+      <td><%= @only_visa_decal_displayed %></td>
+      <td><%= @only_mastercard_decal_displayed %></td>
+      <td><%= @both_visa_and_mastercard_decal_displayed %></td>
+      <td><%= @upi_contactless_on_decal %></td>
+      <td><%= @both_visa_and_mastercard_contactless_on_decal %></td>
+    </tr>
+  </tbody>
+</table>
