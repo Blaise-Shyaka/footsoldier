@@ -16,5 +16,7 @@ Rails.application.routes.draw do
   namespace :union_pay do
     get "reports/merchants"
     get "reports/banks"
+    get "reports/merchants_analysis"
+    get "reports/banks_analysis"
   end
 end
