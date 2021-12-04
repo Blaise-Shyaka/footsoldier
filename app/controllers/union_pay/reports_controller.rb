@@ -72,6 +72,25 @@ class UnionPay::ReportsController < UnionPayController
   end
 
   def banks_analysis
+    @total_nber_of_banks = UnionPayBank.all.length
+    @atms_accepting_upi_cards = percentage_of(UnionPayBank.where(upi_accepted: 'UnionPay Accepted/ Tested').length,
+                                              UnionPayBank.all.length)
+    @atms_where_test_not_allowed = percentage_of(UnionPayBank.where(upi_accepted: 'Test not allowed').length,
+                                                UnionPayBank.all.length)
+    @atms_where_transaction_is_approved = percentage_of(UnionPayBank.where(upi_accepted: 'Approved').length,
+                                                      UnionPayBank.all.length)
+    @atms_where_transaction_is_failed = percentage_of(UnionPayBank.where(upi_accepted: 'Failed').length,
+                                                      UnionPayBank.all.length)
+    @atms_pysical_decal_is_displayed_before_visit = percentage_of(UnionPayBank.where(upi_decal_displayed_before_visit: 'Physical decal').length,
+                                                                  UnionPayBank.all.length)
+    @atms_electronic_decal_is_displayed_before_visit = percentage_of(UnionPayBank.where(upi_decal_displayed_before_visit: 'Electronic decal').length,
+                                                                    UnionPayBank.all.length)
+    @atms_no_decal_is_displayed_before_visit = percentage_of(UnionPayBank.where(upi_decal_displayed_before_visit: 'No UnionPay decal').length,
+                                                            UnionPayBank.all.length)
+    @atms_decal_displayed_after_visit = percentage_of(UnionPayBank.where(upi_decal_displayed_after_visit: 'Yes').length,
+                                                      UnionPayBank.all.length)
+    @visa_and_mastercard_decal_displayed = percentage_of(UnionPayBank.where(is_visa_or_mastercard_displayed: 'Yes').length,
+                                                        UnionPayBank.all.length)
   end
 
   private
