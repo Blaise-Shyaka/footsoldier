@@ -77,9 +77,9 @@ class UnionPay::ReportsController < UnionPayController
                                               UnionPayBank.all.length)
     @atms_where_test_not_allowed = percentage_of(UnionPayBank.where(upi_accepted: 'Test not allowed').length,
                                                 UnionPayBank.all.length)
-    @atms_where_transaction_is_approved = percentage_of(UnionPayBank.where(upi_accepted: 'Approved').length,
+    @atms_where_transaction_is_approved = percentage_of(UnionPayBank.where(transaction_result: 'Approved').length,
                                                       UnionPayBank.all.length)
-    @atms_where_transaction_is_failed = percentage_of(UnionPayBank.where(upi_accepted: 'Failed').length,
+    @atms_where_transaction_is_failed = percentage_of(UnionPayBank.where(transaction_result: 'Failed').length,
                                                       UnionPayBank.all.length)
     @atms_pysical_decal_is_displayed_before_visit = percentage_of(UnionPayBank.where(upi_decal_displayed_before_visit: 'Physical decal').length,
                                                                   UnionPayBank.all.length)
