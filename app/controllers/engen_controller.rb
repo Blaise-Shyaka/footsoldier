@@ -1,0 +1,2 @@
+class EngenController < ApplicationController
+end

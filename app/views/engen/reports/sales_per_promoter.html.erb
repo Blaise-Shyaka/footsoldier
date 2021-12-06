@@ -1,0 +1,27 @@
+<p>
+  <%= link_to 'Sales Per Day', engen_reports_sales_per_day_path %> |
+  <%= link_to 'Sales Per Day Per Promoter', engen_reports_sales_per_promoter_path %>
+</p>
+
+<table>
+  <thead>
+    <tr>
+      <td>Date</td>
+      <td>Full Names</td>
+      <td>Petrol Station</td>
+      <td>Sales Value</td>
+    <tr>
+  </thead>
+  <tbody>
+    <% @promoters_sales.each do |promoter| %>
+      <% promoter[:sales].each do |key, value| %>
+        <tr>
+          <td><%= key %></td>
+          <td><%= promoter[:promoter_name] %></td>
+          <td><%= promoter[:station] %></td>
+          <td><%= value %></td>
+        </tr>
+      <% end %>
+    <% end %>
+  <tbody>
+</table>
