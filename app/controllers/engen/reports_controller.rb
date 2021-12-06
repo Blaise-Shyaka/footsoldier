@@ -1,5 +1,5 @@
 class Engen::ReportsController < EngenController
-  before_action :verify_client_credentials
+  # before_action :verify_client_credentials
 
   def sales_per_day
     @sales = ChefWumujyi.group('created_at::date').order('created_at::date').sum(:fueled_value)
@@ -11,8 +11,8 @@ class Engen::ReportsController < EngenController
     @engen_promoters.each do |promoter|
       @promoters_sales << {
         promoter_name: "#{promoter.first_name} #{promoter.last_name}",
-        station: promoter.chef_wumujyis.first.service_station_name,
-        sales: promoter.chef_wumujyis.group('created_at::date').order('created_at::date').sum(:fueled_value)
+        station: promoter.chef_wumujyis.length > 0 ? promoter.chef_wumujyis[0].service_station_name : "",
+        sales: promoter.chef_wumujyis.length > 0 ? promoter.chef_wumujyis.group('created_at::date').order('created_at::date').sum(:fueled_value) : []
       }
     end
   end
