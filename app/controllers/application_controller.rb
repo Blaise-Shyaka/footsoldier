@@ -8,6 +8,8 @@ class ApplicationController < ActionController::Base
       new_chef_wumujyi_path
     elsif current_user.is_upi_client
       union_pay_reports_banks_path
+    elsif current_user.is_engen_client
+      engen_reports_sales_per_day_path
     else
       user_path(@user)
     end

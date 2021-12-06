@@ -1,4 +1,6 @@
 class Engen::ReportsController < EngenController
+  before_action :verify_client_credentials
+
   def sales_per_day
     @sales = ChefWumujyi.group('created_at::date').order('created_at::date').sum(:fueled_value)
   end
@@ -12,6 +14,15 @@ class Engen::ReportsController < EngenController
         station: promoter.chef_wumujyis.first.service_station_name,
         sales: promoter.chef_wumujyis.group('created_at::date').order('created_at::date').sum(:fueled_value)
       }
+    end
+  end
+
+  private
+
+  def verify_client_credentials
+    unless current_user.is_engen_client
+      flash[:alert] = "Unauthorized! You must be from Engen to access this resource"
+      redirect_to user_path(current_user)
     end
   end
 end
