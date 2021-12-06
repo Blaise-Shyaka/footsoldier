@@ -3,13 +3,15 @@
   <%= link_to 'Sales Per Day Per Promoter', engen_reports_sales_per_promoter_path %>
 </p>
 
+<h1>Daily Sales Per Promoter</h1>
+
 <table>
   <thead>
     <tr>
       <td>Date</td>
       <td>Full Names</td>
       <td>Petrol Station</td>
-      <td>Sales Value</td>
+      <td>Sales Value (Rwf) </td>
     <tr>
   </thead>
   <tbody>
@@ -19,7 +21,7 @@
           <td><%= key %></td>
           <td><%= promoter[:promoter_name] %></td>
           <td><%= promoter[:station] %></td>
-          <td><%= value %></td>
+          <td><%= number_to_currency(value, unit: "", separator: ",", precision: 0) %></td>
         </tr>
       <% end %>
     <% end %>
