@@ -19,4 +19,9 @@ Rails.application.routes.draw do
     get "reports/merchants_analysis"
     get "reports/banks_analysis"
   end
+
+  namespace :engen do
+    get "reports/sales_per_day"
+    get "reports/sales_per_promoter"
+  end
 end
