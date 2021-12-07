@@ -1,5 +1,5 @@
 class Engen::ReportsController < EngenController
-  # before_action :verify_client_credentials
+  before_action :verify_client_credentials
 
   def sales_per_day
     @sales = ChefWumujyi.group('created_at::date').order('created_at::date').sum(:fueled_value)
