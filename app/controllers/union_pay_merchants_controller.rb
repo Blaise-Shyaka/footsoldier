@@ -13,6 +13,7 @@ class UnionPayMerchantsController < ApplicationController
 
   # GET /union_pay_merchants/new
   def new
+    @acquirers = ['Bank of Kigali', 'Equity Bank', 'Ecobank', 'KCB', 'BPR']
     @union_pay_merchant = UnionPayMerchant.new
   end
 
@@ -71,7 +72,11 @@ class UnionPayMerchantsController < ApplicationController
       :address,
       :merchant_category,
       :merchant_accept_international_payment,
-      :merchant_has_multiple_acquirers,
+      :acquirer_one,
+      :acquirer_two,
+      :acquirer_three,
+      :acquirer_four,
+      :acquirer_five,
       :contactless_upi_accepted,
       :contactless_why_upi_not_accepted,
       :contactless_purchase_transaction_result,
