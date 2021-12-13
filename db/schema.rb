@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_12_02_101957) do
+ActiveRecord::Schema.define(version: 2021_12_13_134741) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -78,6 +78,11 @@ ActiveRecord::Schema.define(version: 2021_12_02_101957) do
     t.string "chip_in_pos_code", default: ""
     t.string "swipe_code", default: ""
     t.string "merchant_has_multiple_acquirers", default: [], array: true
+    t.string "acquirer_one", default: ""
+    t.string "acquirer_two", default: ""
+    t.string "acquirer_three", default: ""
+    t.string "acquirer_four", default: ""
+    t.string "acquirer_five", default: ""
   end
 
   create_table "users", force: :cascade do |t|

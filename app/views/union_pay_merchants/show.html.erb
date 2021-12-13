@@ -11,7 +11,14 @@
   <li>Merchant name: <%= @union_pay_merchant.merchant_name %></li>
   <li>Merchant category: <%= @union_pay_merchant.merchant_category %></li>
   <li>Merchant accept internation payments?: <%= @union_pay_merchant.merchant_accept_international_payment %></li>
-  <li>Merchant has multiple acquirers? List them: <%= @union_pay_merchant.merchant_has_multiple_acquirers.join(',') %></li>
+  <li>Merchant has multiple acquirers? List them:
+    <br>
+    <span>Acquirer One:<%= @union_pay_merchant.acquirer_one %></span><br>
+    <span>Acquirer Two:<%= @union_pay_merchant.acquirer_two %></span><br>
+    <span>Acquirer Three:<%= @union_pay_merchant.acquirer_three %></span><br>
+    <span>Acquirer Four:<%= @union_pay_merchant.acquirer_four %></span><br>
+    <span>Acquirer Five:<%= @union_pay_merchant.acquirer_five %></span><br>
+  </li>
 
   <h4>Contactless transactions</h4>
 
