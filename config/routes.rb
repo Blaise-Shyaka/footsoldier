@@ -23,5 +23,6 @@ Rails.application.routes.draw do
   namespace :engen do
     get "reports/sales_per_day"
     get "reports/sales_per_promoter"
+    get "reports/download_csv", format: 'csv'
   end
 end

@@ -17,6 +17,15 @@ class Engen::ReportsController < EngenController
     end
   end
 
+  def download_csv
+    @all_chef_wumujyis = ChefWumujyi.all
+
+    respond_to do |format|
+      format.html
+      format.csv { send_data @all_chef_wumujyis.to_csv, filename: "chef-wumujyis-#{Date.today}.csv" }
+    end
+  end
+
   private
 
   def verify_client_credentials
