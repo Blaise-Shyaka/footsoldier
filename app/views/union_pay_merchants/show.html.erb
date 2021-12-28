@@ -1,7 +1,8 @@
 <p id="notice"><%= notice %></p>
 <br>
 <%= link_to 'Add new merchant', new_union_pay_merchant_path %> |
-<%= link_to 'View all merchants', union_pay_merchants_path %>
+<%= link_to 'View all merchants', union_pay_merchants_path %> |
+<%= render 'new_atm' %>
 <br>
 
 <h2><%=@union_pay_merchant.merchant_name%></h2>

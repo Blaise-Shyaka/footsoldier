@@ -11,7 +11,7 @@ class ApplicationController < ActionController::Base
     elsif current_user.is_engen_client
       engen_reports_sales_per_day_path
     else
-      user_path(@user)
+      user_path(@current_user.id)
     end
   end
 

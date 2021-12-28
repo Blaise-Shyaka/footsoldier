@@ -1,0 +1,5 @@
+<% if current_user.is_promoter && current_user.works_with_upi_merchants && current_user.works_with_upi_banks %>
+  <%= link_to 'Add New ATM', new_union_pay_bank_path %>
+  <br>
+  <br>
+<% end %>
