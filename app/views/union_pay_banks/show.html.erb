@@ -1,5 +1,9 @@
 <p id="notice"><%= notice %></p>
 
+<%= link_to 'Add New Bank', new_union_pay_bank_path %> |
+<%= link_to 'View All Banks', union_pay_banks_path %> |
+<%= render 'new_merchant' %>
+
 <p>
   <strong>Bank name:</strong>
   <%= @union_pay_bank.bank_name %>

@@ -1,5 +1,7 @@
 <h1>Union Pay International Merchant Form</h1>
 
+<%= render 'new_atm' %>
+
 <%= simple_form_for @union_pay_merchant do |f| %>
   <%= f.input :merchant_name,
               label: "Merchant Name/Business Name" %><br>
