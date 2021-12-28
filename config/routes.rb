@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  get 'home', to: 'home#home'
   resources :chef_wumujyis
   resources :union_pay_banks
   resources :union_pay_merchants
