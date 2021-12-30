@@ -1,4 +1,5 @@
 class ChefWumujyisController < ApplicationController
+  before_action :authenticate_user
   before_action :set_chef_wumujyi, only: %i[ show edit update destroy ]
   before_action :verify_promoter_credentials
   before_action :validate_promoter_input, only: %i[edit update create]
@@ -94,6 +95,12 @@ class ChefWumujyisController < ApplicationController
       elsif chef_wumujyi_params[:vehicle_type] === 'Private' && Integer(chef_wumujyi_params[:fueled_value]) < 20000
         flash[:alert] = "Error! Minimum fuel value for a Private car is 20,000Rwf"
         render "chef_wumujyis/new"
+      end
+    end
+
+    def authenticate_user
+      if current_user.nil?
+        redirect_to new_user_session_path
       end
     end
 end
