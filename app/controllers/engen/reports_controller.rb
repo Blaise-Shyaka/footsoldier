@@ -1,4 +1,5 @@
 class Engen::ReportsController < EngenController
+  before_action :authenticate_user
   before_action :verify_client_credentials
 
   def sales_per_day
@@ -32,6 +33,12 @@ class Engen::ReportsController < EngenController
     unless current_user.is_engen_client
       flash[:alert] = "Unauthorized! You must be from Engen to access this resource"
       redirect_to user_path(current_user)
+    end
+  end
+
+  def authenticate_user
+    if current_user.nil?
+      redirect_to new_user_session_path
     end
   end
 end

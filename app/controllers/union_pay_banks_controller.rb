@@ -1,4 +1,5 @@
 class UnionPayBanksController < ApplicationController
+  before_action :authenticate_user
   before_action :set_union_pay_bank, only: %i[ show edit update destroy ]
   before_action :verify_promoter_credentials
 
@@ -72,6 +73,12 @@ class UnionPayBanksController < ApplicationController
       unless current_user.is_promoter && current_user.works_with_upi_banks
         flash[:alert] = "Ooooops ... You don't work with banks"
         redirect_to user_path(current_user)
+      end
+    end
+
+    def authenticate_user
+      if current_user.nil?
+        redirect_to new_user_session_path
       end
     end
 end
