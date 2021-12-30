@@ -11,6 +11,7 @@ Rails.application.routes.draw do
   namespace :admin do
     post "approve_user/approve_user"
     get "approve_user/approve"
+    get "promoter_performance/union_pay"
   end
 
   namespace :union_pay do

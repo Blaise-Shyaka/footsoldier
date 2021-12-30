@@ -1,0 +1,21 @@
+<h1>UnionPay Promoter Performance</h1>
+<table>
+  <thead>
+    <tr>
+      <th>Full Names</th>
+      <th>Number of Merchants</th>
+      <th>Number of ATMs</th>
+      <th>TOTAL</th>
+    <tr>
+  </thead>
+  <tbody>
+    <% @union_pay_promoters.each do |promoter| %>
+      <tr>
+        <td><%= "#{promoter.first_name} #{promoter.last_name}" %></td>
+        <td><%= promoter.union_pay_merchants.length %></td>
+        <td><%= promoter.union_pay_banks.length %></td>
+        <td><%= promoter.union_pay_merchants.length + promoter.union_pay_banks.length %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
