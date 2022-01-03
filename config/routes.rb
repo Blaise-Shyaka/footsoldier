@@ -19,6 +19,8 @@ Rails.application.routes.draw do
     get "reports/banks"
     get "reports/merchants_analysis"
     get "reports/banks_analysis"
+    get "reports/download_merchants_csv"
+    get "reports/download_atms_csv"
   end
 
   namespace :engen do
