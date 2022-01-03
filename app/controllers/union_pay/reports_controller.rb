@@ -93,6 +93,24 @@ class UnionPay::ReportsController < UnionPayController
                                                         UnionPayBank.all.length)
   end
 
+  def download_merchants_csv
+    @union_pay_merchants = UnionPayMerchant.all
+
+    respond_to do |format|
+      format.html
+      format.csv { send_data @union_pay_merchants.to_csv, filename: "UnionPay-Merchants-#{Date.today}.csv" }
+    end
+  end
+
+  def download_atms_csv
+    @union_pay_atms = UnionPayBank.all
+
+    respond_to do |format|
+      format.html
+      format.csv { send_data @union_pay_atms.to_csv, filename: "UnionPay-ATMs-#{Date.today}.csv" }
+    end
+  end
+
   private
 
   def verify_client_credentials
