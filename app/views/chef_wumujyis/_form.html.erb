@@ -4,10 +4,16 @@
   <%= f.error_notification message: f.object.errors[:base].to_sentence if f.object.errors[:base].present? %>
 
   <div class="form-inputs">
-    <%= f.input :coupon_number,
+    <div class="field">
+      <%= f.label "Ticket Coupon Number", class: "block text-sm"%>
+      <%= f.input_field :coupon_number,
               required: true,
-              label: 'Ticket coupon number' %>
-    <%= f.input :vehicle_type,
+              placeholder: "5724",
+              class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4" %>
+    </div>
+    <div class="field">
+      <%= f.label "Vehicle Type", class: "block text-sm" %>
+      <%= f.input_field :vehicle_type,
                 collection: [
                   'Moto Driver',
                   'Taxi Driver',
@@ -16,68 +22,90 @@
                   'Private'
                 ],
                 required: true,
+                class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4",
                 prompt: 'Select option' %>
-    <%= f.input :fueled_value, required: true %>
-    <%= f.input :plate_number, 
-                minlength: 5,
-                maxlength: 8,
-                required: true %>
-    <%= f.input :customer_name, required: true %>
-    <%= f.input :telephone_number,
-                minlength: 10,
-                maxlength: 10,
-                required: true %>
-    <%= f.input :service_station_name,
-                collection: [
-                  'ENGEN BISHENYI',
-                  'ENGEN BUGARAMA',
-                  'ENGEN BUTARE',
-                  'ENGEN BUTARE 2',
-                  'ENGEN BYUMBA',
-                  'ENGEN BYUMBA 2',
-                  'ENGEN FREEZONE',
-                  'ENGEN GACULIRO',
-                  'ENGEN GIKONDO',
-                  'ENGEN GISENYI',
-                  'ENGEN GITARAMA',
-                  'ENGEN GITIKINYONI',
-                  'ENGEN GITIKINYONI 2',
-                  'ENGEN KABARORE',
-                  'ENGEN KABEZA',
-                  'ENGEN KACYIRU',
-                  'ENGEN KAMEMBE',
-                  'ENGEN KAMONYI',
-                  'ENGEN KANOGO',
-                  'ENGEN KAYONZA',
-                  'ENGEN KAYONZA 2',
-                  'ENGEN KIBAGABAGA',
-                  'ENGEN KICUKIRO ',
-                  'ENGEN KICUKIRO CENTRE',
-                  'ENGEN KICUKIRO IPRC',
-                  'ENGEN KICUKIRO SONATUBE',
-                  'ENGEN KIMIRONKO',
-                  'ENGEN KINYINYA',
-                  'ENGEN MASAKA',
-                  'ENGEN MUSANZE',
-                  'ENGEN NGOMA',
-                  'ENGEN NYABUGOGO',
-                  'ENGEN NYAGATARE',
-                  'ENGEN NYAGATARE 2',
-                  'ENGEN NYAMATA',
-                  'ENGEN POIDS LOURDS',
-                  'ENGEN RUBAVU',
-                  'ENGEN RUBAVU 2',
-                  'ENGEN RUBENGERA',
-                  'ENGEN RUHANGO',
-                  'ENGEN RUSORORO',
-                  'ENGEN RWAMAGANA',
-                  'ENGEN SAINT FAMILLE'
-                ],
-                prompt: 'Select option',
-                required: true %>
+    </div>
+    <div class="field">
+      <%= f.label "Fueled Value", class: "block text-sm"%>
+      <%= f.input_field :fueled_value, placeholder: "25000", required: true, class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4" %>
+    </div>
+    <div class="field">
+      <%= f.label "Plate Number", class: "block text-sm"%>
+      <%= f.input_field :plate_number, 
+                  minlength: 5,
+                  maxlength: 8,
+                  placeholder: "RAD345E",
+                  class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4",
+                  required: true %>
+    </div>
+    <div class="field">
+      <%= f.label "Customer Name", class: "block text-sm" %>
+      <%= f.input_field :customer_name, placeholder: "KEZA Jenkins", required: true, class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4" %>
+    </div>
+    <div class="field">
+      <%= f.label "Phone Number", class: "block text-sm" %>
+      <%= f.input_field :telephone_number,
+                  minlength: 10,
+                  maxlength: 10,
+                  required: true,
+                  placeholder: "0786000000",
+                  class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4" %>
+    </div>
+    <div class="field">
+      <%= f.label "Service Station Name", class: "block text-sm" %>
+      <%= f.input_field :service_station_name,
+                  collection: [
+                    'ENGEN BISHENYI',
+                    'ENGEN BUGARAMA',
+                    'ENGEN BUTARE',
+                    'ENGEN BUTARE 2',
+                    'ENGEN BYUMBA',
+                    'ENGEN BYUMBA 2',
+                    'ENGEN FREEZONE',
+                    'ENGEN GACULIRO',
+                    'ENGEN GIKONDO',
+                    'ENGEN GISENYI',
+                    'ENGEN GITARAMA',
+                    'ENGEN GITIKINYONI',
+                    'ENGEN GITIKINYONI 2',
+                    'ENGEN KABARORE',
+                    'ENGEN KABEZA',
+                    'ENGEN KACYIRU',
+                    'ENGEN KAMEMBE',
+                    'ENGEN KAMONYI',
+                    'ENGEN KANOGO',
+                    'ENGEN KAYONZA',
+                    'ENGEN KAYONZA 2',
+                    'ENGEN KIBAGABAGA',
+                    'ENGEN KICUKIRO ',
+                    'ENGEN KICUKIRO CENTRE',
+                    'ENGEN KICUKIRO IPRC',
+                    'ENGEN KICUKIRO SONATUBE',
+                    'ENGEN KIMIRONKO',
+                    'ENGEN KINYINYA',
+                    'ENGEN MASAKA',
+                    'ENGEN MUSANZE',
+                    'ENGEN NGOMA',
+                    'ENGEN NYABUGOGO',
+                    'ENGEN NYAGATARE',
+                    'ENGEN NYAGATARE 2',
+                    'ENGEN NYAMATA',
+                    'ENGEN POIDS LOURDS',
+                    'ENGEN RUBAVU',
+                    'ENGEN RUBAVU 2',
+                    'ENGEN RUBENGERA',
+                    'ENGEN RUHANGO',
+                    'ENGEN RUSORORO',
+                    'ENGEN RWAMAGANA',
+                    'ENGEN SAINT FAMILLE'
+                  ],
+                  prompt: 'Select option',
+                  required: true,
+                  class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4" %>
+    </div>
   </div>
 
   <div class="form-actions">
-    <%= f.button :submit, 'Submit' %>
+    <%= f.button :submit, 'Submit', class: "w-full px-8 py-3 my-6 rounded-md text-white bg-indigo-600 hover:bg-indigo-700" %>
   </div>
 <% end %>
