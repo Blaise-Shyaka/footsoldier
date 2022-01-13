@@ -3,7 +3,7 @@ Rails.application.routes.draw do
   resources :chef_wumujyis
   resources :union_pay_banks
   resources :union_pay_merchants
-  devise_for :users, :controllers => { registrations: 'users/registrations' }
+  devise_for :users, :controllers => { registrations: 'users/registrations', sessions: 'users/sessions' }
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
   devise_scope :user do
     root :to => 'devise/sessions#new'
