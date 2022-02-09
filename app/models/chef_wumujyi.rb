@@ -6,7 +6,7 @@ class ChefWumujyi < ApplicationRecord
   validates_length_of :plate_number, minimum: 5, maximum: 7
 
   def self.to_csv
-    attributes = %w{vehicle_type fueled_value customer_name telephone_number service_station_name}
+    attributes = %w{created_at vehicle_type fueled_value customer_name telephone_number service_station_name}
 
     CSV.generate(headers: true) do |csv|
       csv << attributes
