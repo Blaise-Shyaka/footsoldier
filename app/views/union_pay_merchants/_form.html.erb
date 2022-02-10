@@ -12,6 +12,368 @@
   <% end %>
 
   <div class="actions">
-    <%= form.submit %>
+  <%= simple_form_for @union_pay_merchant do |f| %>
+      <div class="field">
+        <%= f.label :merchant_name, class: "block text-sm"%>
+        <%= f.text_field :merchant_name,
+                  placeholder: "Keza Jewelry LTD",
+                  class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4", autofocus: true %>
+      </div>
+      <div class="field">
+        <%= f.label :address, class: "block text-sm"%>
+        <%= f.text_field :address,
+                  placeholder: "5 KG521ST",
+                  class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4", autofocus: true %>
+      </div>
+      <div class="field">
+        <%= f.label :merchant_category, class: "block text-sm" %>
+        <%= f.input_field :merchant_category, 
+                  collection: [
+                    'Shopping and souvenir stores',
+                    'Restaurants or bars',
+                    'Hotels',
+                    'Supermarkets, convenient stores, or wholesales',
+                    'Car rentals',
+                    'Entertainment and scenic spots',
+                    'Transportation',
+                    'Other'
+                    ], 
+                    prompt: "Select merchant category",
+                    class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4", autofocus: true %>
+      </div>
+      <div class="field">
+        <%= f.label "Does the merchant accept international payment solutions (bank cards or digital wallets)?", class: "block text-sm" %>
+        <%= f.input_field :merchant_accept_international_payment, 
+                    collection: [
+                      'Yes',
+                      'No - Local card only',
+                      'No - Local digital wallet only',
+                      'No - Local bank card and digital wallet only',
+                      'No - Cash only'
+                      ],
+                      prompt: "Select one option",
+                      class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4", autofocus: true%>
+      </div>
+      <h4 class="font-bold text-base">Does the merchant have multiple acquirers?</h4><br>
+      <div class="field">
+        <%= f.label "Acquirer One:", class: "block text-sm" %>
+        <%= f.input_field :acquirer_one, 
+                    collection: @acquirers,
+                    prompt: "Select one option",
+                    class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4", autofocus: true %>
+      </div>
+      <div class="field">
+        <%= f.label "Acquirer Two:", class: "block text-sm" %>
+        <%= f.input_field :acquirer_two,
+                    collection: @acquirers,
+                    prompt: "Select one option",
+                    class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4", autofocus: true %>
+      </div>
+      <div class="field">
+        <%= f.label "Acquirer Three:", class: "block text-sm" %>
+        <%= f.input_field :acquirer_three, 
+                    collection: @acquirers,
+                    prompt: "Select one option",
+                    class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4", autofocus: true %>
+      </div>
+      <div class="field">
+        <%= f.label "Acquirer Four:", class: "block text-sm" %>
+        <%= f.input_field :acquirer_four, 
+                    collection: @acquirers,
+                    prompt: "Select one option",
+                    class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4", autofocus: true %>
+      </div>
+      <div class="field">
+        <%= f.label "Acquirer Five:", class: "block text-sm" %>
+        <%= f.input_field :acquirer_five, 
+                    collection: @acquirers,
+                    prompt: "Select one option",
+                    class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4", autofocus: true %>
+      </div>
+
+      <h4 class="font-bold text-base">Contactless card acceptance testing (Skip this section)</h4><br>
+      <div class="field">
+        <%= f.label "Contactless UnionPay accepted and tested?", class: "block text-sm" %>
+        <%= f.input_field :contactless_upi_accepted, 
+                    collection: [
+                      'The cashier stated UnionPay Accepted/ Test not allowed',
+                      'Cashier not sure or stated UnionPay not Accepted/ Test not allowed',
+                      'The cashier stated UnionPay accepted/ Tested',
+                      'Cashier not sure or stated UnionPay not Accepted/ Tested',
+                      'Not active yet'
+                      ],
+                      selected: 'Not active yet',
+                      prompt: "Select one option",
+                      class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4", autofocus: true %>
+      <div>
+      <div class="field">
+        <%= f.label "If you chose option 2 on the previous question, why is UnionPay contactless not accepted and test transactions not allowed?", class: "block text-sm" %>
+        <%= f.input_field :contactless_why_upi_not_accepted, 
+                    collection: [
+                      'Interview refused by the merchant',
+                      'The cashier does not know how to use UnionPay',
+                      'No need for enabling UnionPay',
+                      'Do not know',
+                      'Not active yet'
+                      ],
+                      selected: 'Not active yet',
+                      prompt: "Select one option",
+                      class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4", autofocus: true %>
+      </div>
+      <div class="field">
+        <%= f.label "Contactless card purchase test transaction result?", class: "block text-sm" %>
+        <%= f.input_field :contactless_purchase_transaction_result, 
+                    collection: [
+                      'Approved',
+                      'Failed',
+                      'Test not allowed',
+                      'Not active yet'
+                      ],
+                      selected: 'Not active yet',
+                      prompt: "Select one option",
+                      class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4", autofocus: true %>
+      </div>
+      <div class="field">
+        <%= f.label "Contactless transaction result code", class: "block text-sm" %>
+        <%= f.input_field :contactless_code, placeholder: "Eg: 55, 51, ...", class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4", autofocus: true %>
+      </div>
+      <div class="field">
+        <%= f.label "Other contactless card schemes accepted?", class: "block text-sm" %>
+        <%= f.input_field :contactless_other_card_schemes_accepted, 
+                    collection: [
+                      'VISA',
+                      'Mastercard',
+                      'both VISA and Mastercard',
+                      'Test not allowed',
+                      'Not active yet'
+                      ],
+                      selected: 'Not active yet',
+                      prompt: "Select one option",
+                      class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4", autofocus: true %>
+      </div>
+      <div class="field">
+        <%= f.label "Contactless test transaction scenario?", class: "block text-sm"%>
+        <%= f.input_field :contactless_test_scenario, 
+                    collection: [
+                      'Mystery test',
+                      'Authentic test',
+                      'Not active yet'
+                      ],
+                      selected: 'Not active yet',
+                      prompt: "Select one option",
+                      class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4", autofocus: true %>
+      </div>
+      <h4 class="font-bold text-base">Insert card into the POS and proceed with questions</h4><br>
+      <div class="field">
+        <%= f.label "UnionPay accepted and tested?", class: "block text-sm" %>
+        <%= f.input_field :chip_in_pos_upi_accepted, 
+                    collection: [
+                      'The cashier stated UnionPay Accepted/ Test not allowed',
+                      'Cashier not sure or stated UnionPay not Accepted/ Test not allowed',
+                      'The cashier stated UnionPay accepted/ Tested',
+                      'Cashier not sure or stated UnionPay not Accepted/ Tested',
+                      'Contactless succeeded'
+                      ],
+                      prompt: "Select one option",
+                      class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4", autofocus: true %>
+      </div>
+      <div class="field">
+        <%= f.label "If you chose option 2 on the previous question, why is UnionPay not accepted and test transactions not allowed?", class: "block text-sm" %>
+        <%= f.input_field :chip_in_pos_why_upi_not_accepted, 
+                    collection: [
+                      'Interview refused by the merchant',
+                      'The cashier does not know how to use UnionPay',
+                      'No need for enabling UnionPay',
+                      'Do not know',
+                      'Contactless succeeded'
+                      ],
+                      prompt: "Select one option",
+                      class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4", autofocus: true %>
+      </div>
+      <div class="field">
+        <%= f.label "Card purchase test transaction result?", class: "block text-sm" %>
+        <%= f.input_field :chip_in_pos_purchase_transaction_result, 
+                    collection: [
+                      'Approved',
+                      'Failed',
+                      'Test not allowed',
+                      'Contactless succeeded'
+                      ],
+                      prompt: "Select one option",
+                      class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4", autofocus: true %>
+      </div>
+      <div class="field">
+        <%= f.label "Transaction result code", class: "block text-sm" %>
+        <%= f.input_field :chip_in_pos_code, placeholder: "Eg: 55, 51, ...", class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4", autofocus: true %>
+      </div>
+      <div class="field">
+        <%= f.label "Card schemes accepted?", class: "block text-sm" %>
+        <%= f.input_field :chip_in_pos_other_card_schemes_accepted, 
+                    collection: [
+                      'VISA',
+                      'Mastercard',
+                      'both VISA and Mastercard',
+                      'Test not allowed',
+                      'Contactless succeeded'
+                      ],
+                      prompt: "Select one option",
+                      class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4", autofocus: true %>
+      </div>
+      <div class="field">
+        <%= f.label "Test transaction scenario?", class: "block text-sm" %>
+        <%= f.input_field :chip_in_pos_test_scenario, 
+                    collection: [
+                      'Mystery test',
+                      'Authentic test',
+                      'Contactless succeeded'
+                      ],
+                      prompt: "Select one option",
+                      class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4", autofocus: true %>
+      </div>
+      <h4 class="font-bold text-base">If contactless and inserting card failed, please proceed with the following questions</h4><br>
+      <div class="field">
+        <%= f.label "UnionPay accepted and tested?", class: "bold text-sm" %>
+        <%= f.input_field :swipe_upi_accepted, 
+                    collection: [
+                      'The cashier stated UnionPay Accepted/ Test not allowed',
+                      'Cashier not sure or stated UnionPay not Accepted/ Test not allowed',
+                      'The cashier stated UnionPay accepted/ Tested',
+                      'Cashier not sure or stated UnionPay not Accepted/ Tested',
+                      'Other tests succeeded'
+                      ],
+                      selected: 'Other tests succeeded',
+                      prompt: "Select one option",
+                      class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4", autofocus: true %>
+      </div>
+      <div class="field">
+        <%= f.label "If you chose option 2 on the previous question, why is UnionPay not accepted and test transactions not allowed?", class: "block text-sm" %>
+        <%= f.input_field :swipe_why_upi_not_accepted, 
+                    collection: [
+                      'Interview refused by the merchant',
+                      'The cashier does not know how to use UnionPay',
+                      'No need for enabling UnionPay',
+                      'Do not know',
+                      'Other tests succeeded'
+                      ],
+                      selected: 'Other tests succeeded',
+                      prompt: "Select one option",
+                      class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4", autofocus: true %>
+      </div>
+      <div class="field">
+        <%= f.label "Card purchase test transaction result?", class: "block text-sm" %>
+        <%= f.input_field :swipe_purchase_transaction_result, 
+                    collection: [
+                      'Approved',
+                      'Failed',
+                      'Test not allowed',
+                      'Other tests succeeded'
+                      ],
+                      selected: 'Other tests succeeded',
+                      prompt: "Select one option",
+                      class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4", autofocus: true %>
+      </div>
+      <div class="field">
+        <%= f.label "Transaction result code", class: "block text-sm" %>
+        <%= f.input_field :swipe_code, placeholder: "Eg: 55, 51, ...", class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4", autofocus: true %>
+      </div>
+      <div class="field">
+        <%= f.label "Other card schemes accepted?", class: "block text-sm" %>
+        <%= f.input_field :swipe_other_card_schemes_accepted, 
+                    collection: [
+                      'VISA',
+                      'Mastercard',
+                      'both VISA and Mastercard',
+                      'Test not allowed',
+                      'Other tests succeeded'
+                      ],
+                      selected: 'Other tests succeeded',
+                      prompt: "Select one option",
+                      class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4", autofocus: true %>
+      </div>
+      <div class="field">
+        <%= f.label "Test transaction scenario?", class: "block text-sm" %>
+        <%= f.input_field :swipe_test_scenario, 
+                    collection: [
+                      'Mystery test',
+                      'Authentic test',
+                      'Other tests succeeded'
+                      ],
+                      selected: 'Other tests succeeded',
+                      prompt: "Select one option",
+                      class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4", autofocus: true %>
+      </div>
+      <h4 class="font-bold text-base">Decal/Signage Display</h4><br>
+
+      <div class="field">
+        <%= f.label "UnionPay decal displayed before the visit?", class: "block text-sm" %>
+        <%= f.input_field :upi_decal_displayed_before_visit, 
+                    collection: [
+                      'Physical decal',
+                      'Electronic decal',
+                      'No UnionPay decal'
+                      ],
+                      prompt: "Select one option",
+                      class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4", autofocus: true %>
+      </div>
+      <div class="field">
+        <%= f.label "If you chose option 3 in the previous question, UnionPay decal branded after your visit?", class: "block text-sm" %>
+        <%= f.input_field :upi_decal_displayed_after_visit, 
+                    collection: [
+                      'Yes',
+                      'No'
+                      ],
+                      prompt: "Select one option",
+                      class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4", autofocus: true %>
+      </div>
+      <div class="field">
+        <%= f.label "VISA OR Mastercard decal displayed?", class: "block text-sm" %>
+        <%= f.input_field :is_visa_or_mastercard_displayed, 
+                    collection: [
+                      'Both of them posted',
+                      'Only VISA decal posted',
+                      'Only Mastercard decal posted',
+                      'Neither of them posted'
+                      ],
+                      prompt: "Select one option",
+                      class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4", autofocus: true %>
+      </div>
+      <div class="field">
+        <%= f.label "The contactless mark is shown with UnionPay single decal?", class: "block text-sm" %>
+        <%= f.input_field :is_contactless_mark_shown_upi_single_decal, 
+                    collection: [
+                      'Yes',
+                      'No'
+                      ],
+                      prompt: "Select one option",
+                      class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4", autofocus: true %>
+      </div>
+      <div class="field">
+        <%= f.label "VISA or Mastercard Contactless mark is shown on a single decal of Visa or Mastercard?", class: "block text-sm" %>
+        <%= f.input_field :is_visa_or_mastercard_contactless_mark_shown_on_single_decal, 
+                    collection: [
+                      'Both of them shown',
+                      'Only VISA contactless shown',
+                      'Only Mastercard contactless shown',
+                      'Neither of them shown'
+                      ],
+                      prompt: "Select one option",
+                      class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4", autofocus: true %>
+      </div>
+      <div class="field">
+        <%= f.label "The contactless mark is shown on the Integrated Decal of multiple card schemes?", class: "block text-sm" %>
+        <%= f.input_field :is_contactless_mark_shown_on_integrated_decal, 
+                    collection: [
+                      'Yes',
+                      'No'
+                      ],
+                      prompt: "Select one option",
+                      class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4", autofocus: true %>
+      </div>
+      <div class="field">
+        <%= f.label "Special Comments", class: "block text-sm" %>
+        <%= f.input_field :special_comments, as: :text, class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4", autofocus: true %>
+      </div>
+      <%= f.button :submit, "Submit", class: "w-full px-8 py-3 rounded-md text-white bg-indigo-600 hover:bg-indigo-700" %>
+    <% end %>
   </div>
 <% end %>

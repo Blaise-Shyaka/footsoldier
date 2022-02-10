@@ -13,8 +13,8 @@
     <% @union_pay_merchants.each do |union_pay_merchant| %>
       <tr>
         <td><%= union_pay_merchant.merchant_name %><td>
+        <td><%= link_to 'Edit Merchant', edit_union_pay_merchant_path(union_pay_merchant.id) %></td>
         <td><%= link_to 'View Merchant', union_pay_merchant %></td>
-        <td><%= link_to 'Delete', union_pay_merchant, method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>
     <% end %>
   </tbody>
@@ -22,4 +22,6 @@
 
 <br>
 
-<%= link_to 'New Union Pay Merchant', new_union_pay_merchant_path %>
+<%= link_to 'New Union Pay Merchant | ', new_union_pay_merchant_path %>
+<%= link_to 'View All Union Pay Merchants | ', union_pay_merchants_path %>
+<%= link_to 'View All Union Pay Banks', union_pay_banks_path %>

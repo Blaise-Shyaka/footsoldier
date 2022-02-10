@@ -5,7 +5,7 @@ class UnionPayBanksController < ApplicationController
 
   # GET /union_pay_banks or /union_pay_banks.json
   def index
-    @union_pay_banks = current_user.union_pay_banks
+    @union_pay_banks = UnionPayBank.all
   end
 
   # GET /union_pay_banks/1 or /union_pay_banks/1.json
@@ -39,7 +39,8 @@ class UnionPayBanksController < ApplicationController
   # PATCH/PUT /union_pay_banks/1 or /union_pay_banks/1.json
   def update
     respond_to do |format|
-      if @union_pay_bank.update(union_pay_bank_params)
+      upi_params = union_pay_bank_params.merge(edited_by: current_user.id)
+      if @union_pay_bank.update(upi_params)
         format.html { redirect_to @union_pay_bank, notice: "Union pay bank was successfully updated." }
         format.json { render :show, status: :ok, location: @union_pay_bank }
       else

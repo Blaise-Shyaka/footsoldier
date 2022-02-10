@@ -1,8 +1,10 @@
 <p id="notice"><%= notice %></p>
 <br>
-<%= link_to 'Add new merchant', new_union_pay_merchant_path %> |
-<%= link_to 'View all merchants', union_pay_merchants_path %> |
-<%= render 'new_atm' %>
+<div>
+  <%= link_to 'New Merchant', union_pay_merchant_path, method: :get %>
+  <%= link_to 'View All Merchants', union_pay_merchants_path, method: :get %>
+  <%= render 'new_atm' %>
+</div>
 <br>
 
 <h2><%=@union_pay_merchant.merchant_name%></h2>

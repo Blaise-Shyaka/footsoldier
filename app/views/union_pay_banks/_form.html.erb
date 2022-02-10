@@ -1,61 +1,102 @@
 
-<%= simple_form_for(@union_pay_bank) do |f| %>
-  <%= f.error_notification %>
-  <%= f.error_notification message: f.object.errors[:base].to_sentence if f.object.errors[:base].present? %>
+  <%= simple_form_for(@union_pay_bank) do |f| %>
+    <%= f.error_notification %>
+    <%= f.error_notification message: f.object.errors[:base].to_sentence if f.object.errors[:base].present? %>
 
-  <div class="form-inputs">
-    <%= f.input :bank_name %><br>
-    <%= f.input :atm_location,
-                label: "ATM Location" %><br>
-    <%= f.input :upi_accepted,
-                collection: [
-                  'UnionPay Accepted/ Tested',
-                  'UnionPay not accepted/ Tested',
-                  'Test not allowed'
-                ],
-                label: "UnionPay accepted and tested?",
-                required: true,
-                prompt: 'Select option' %><br>
-    <%= f.input :why_test_not_allowed,
-                label: "If you chose option 3 on the previous question, why is the test not allowed?" %><br>
-    <%= f.input :transaction_result,
-                collection: [
-                  'Approved',
-                  'Failed',
-                  'Test not allowed'
-                ],
-                label: 'Card test transaction result?',
-                required: true,
-                prompt: 'Select option' %><br>
-    <%= f.input :transaction_code,
-                placeholder: 'Eg: 55, 51, ...' %><br>
-    <%= f.input :upi_decal_displayed_before_visit,
-                collection: [
-                  'Physical decal',
-                  'Electronic decal',
-                  'No UnionPay decal'
-                ],
-                label: 'UnionPay decal displayed before the visit?',
-                required: true,
-                prompt: 'Select option' %><br>
-    <%= f.input :upi_decal_displayed_after_visit,
-                collection: [
-                  'Yes',
-                  'No'
-                ],
-                label: 'If you chose option 3 in the previous question, UnionPay decal branded after your visit?',
-                prompt: 'Select option' %><br>
-    <%= f.input :is_visa_or_mastercard_displayed,
-                collection: [
-                  'Yes',
-                  'No'
-                ],
-                required: true,
-                prompt: 'Select option' %><br>
-    <%= f.input :special_comments, as: :text %><br>
-  </div>
+    <div>
+      <div class="field">
+        <%= f.label :bank_name, class: "block text-sm"%>
+        <%= f.text_field :bank_name,
+          placeholder: "Bank of Kigali",
+          class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4",
+          autofocus: true%>
+      </div>
+      <div class="field">
+        <%= f.label :atm_location, class: "block text-sm"%>
+        <%= f.text_field :atm_location,
+          placeholder: "Nobiscum Building",
+          class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4",
+          autofocus: true%>
+      </div>
+      <div class="field">
+        <%= f.label :upi_accepted, class: "block text-sm"%>
+        <%= f.input_field :upi_accepted,
+                    collection: [
+                      'UnionPay Accepted/ Tested',
+                      'UnionPay not accepted/ Tested',
+                      'Test not allowed'
+                    ],
+                    class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4",
+                    required: true,
+                    prompt: 'Select option' %>
+      </div>
+      <div>
+        <%= f.label "If you chose option 3 on the previous question, why is the test not allowed?", class: "block text-sm"%>
+        <%= f.input_field :why_test_not_allowed,
+                    as: :text,
+                    class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4",
+                    required: true %>
+      </div>
+      <div>
+        <%= f.label :transaction_result, class: "block text-sm"%>
+        <%= f.input_field :transaction_result,
+                      collection: [
+                        'Approved',
+                        'Failed',
+                        'Test not allowed'
+                      ],
+                      class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4",
+                      required: true,
+                      prompt: 'Select option' %>
+      </div>
+      <div>
+        <%= f.label :transaction_code, class: "block text-sm"%>
+        <%= f.text_field :transaction_code,
+                    placeholder: 'Eg: 55, 51, ...',
+                    class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4"%>
+      </div>
+      <div>
+        <%= f.label :upi_decal_displayed_before_visit, class: "block text-sm"%>
+        <%= f.input_field :upi_decal_displayed_before_visit,
+                    collection: [
+                      'Physical decal',
+                      'Electronic decal',
+                      'No UnionPay decal'
+                    ],
+                    class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4",
+                    required: true,
+                    prompt: 'Select option' %>
+      </div>
+      <div>
+        <%= f.label 'If you chose option 3 in the previous question, UnionPay decal branded after your visit?', class: "block text-sm"%>
+        <%= f.input_field :upi_decal_displayed_after_visit,
+                    collection: [
+                      'Yes',
+                      'No'
+                    ],
+                    class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4",
+                    prompt: 'Select option' %>
+      </div>
+      <div>
+        <%= f.label :is_visa_or_mastercard_displayed, class: "block text-sm"%>
+        <%= f.input_field :is_visa_or_mastercard_displayed,
+                    collection: [
+                      'Yes',
+                      'No'
+                    ],
+                    required: true,
+                    class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4",
+                    prompt: 'Select option' %>
+      </div>
+      <div>
+        <%= f.label :special_comments, class: "block text-sm"%>
+        <%= f.input_field :special_comments,
+              as: :text,
+              class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4" %>
+      </div>
+    </div>
 
-  <div class="form-actions">
-    <%= f.button :submit, "Submit" %>
-  </div><br>
-<% end %>
+    <div class="form-actions">
+      <%= f.button :submit, "Submit", class: "w-full px-8 py-3 rounded-md text-white bg-indigo-600 hover:bg-indigo-700" %>
+    </div><br>
+  <% end %>
