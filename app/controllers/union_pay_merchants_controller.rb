@@ -5,7 +5,7 @@ class UnionPayMerchantsController < ApplicationController
 
   # GET /union_pay_merchants or /union_pay_merchants.json
   def index
-    @union_pay_merchants = UnionPayMerchant.all
+    @union_pay_merchants = UnionPayMerchant.where(edited_by: nil)
   end
 
   # GET /union_pay_merchants/1 or /union_pay_merchants/1.json
