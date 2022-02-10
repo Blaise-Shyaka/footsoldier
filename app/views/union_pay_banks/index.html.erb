@@ -18,7 +18,6 @@
         <td><%= union_pay_bank.atm_location %></td>
         <td><%= link_to 'Show', union_pay_bank %></td>
         <td><%= link_to 'Edit', edit_union_pay_bank_path(union_pay_bank) %></td>
-        <td><%= link_to 'Destroy', union_pay_bank, method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>
     <% end %>
   </tbody>
@@ -26,4 +25,5 @@
 
 <br>
 
-<%= link_to 'New Union Pay Bank', new_union_pay_bank_path %>
+<%= link_to 'New Union Pay Bank | ', new_union_pay_bank_path %>
+<%= link_to 'View All Merchants', union_pay_merchants_path %>
