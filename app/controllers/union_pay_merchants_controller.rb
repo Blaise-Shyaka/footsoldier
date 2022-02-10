@@ -5,7 +5,7 @@ class UnionPayMerchantsController < ApplicationController
 
   # GET /union_pay_merchants or /union_pay_merchants.json
   def index
-    @union_pay_merchants = current_user.union_pay_merchants
+    @union_pay_merchants = UnionPayMerchant.all
   end
 
   # GET /union_pay_merchants/1 or /union_pay_merchants/1.json
@@ -41,8 +41,9 @@ class UnionPayMerchantsController < ApplicationController
   # PATCH/PUT /union_pay_merchants/1 or /union_pay_merchants/1.json
   def update
     respond_to do |format|
-      if @union_pay_merchant.update(union_pay_merchant_params)
-        format.html { redirect_to @union_pay_merchant, notice: "Union pay merchant was successfully updated." }
+      upi_params = union_pay_merchant_params.merge(:edited_by => current_user.id)
+      if @union_pay_merchant.update(upi_params)
+        format.html { redirect_to union_pay_merchants_url, notice: "Union pay merchant was successfully updated." }
         format.json { render :show, status: :ok, location: @union_pay_merchant }
       else
         format.html { render :edit, status: :unprocessable_entity }
