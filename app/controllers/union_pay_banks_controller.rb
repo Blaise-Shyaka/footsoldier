@@ -19,6 +19,7 @@ class UnionPayBanksController < ApplicationController
 
   # GET /union_pay_banks/1/edit
   def edit
+    @acquirers = ['Bank of Kigali', 'Equity Bank', 'Ecobank', 'KCB', 'BPR']
   end
 
   # POST /union_pay_banks or /union_pay_banks.json
