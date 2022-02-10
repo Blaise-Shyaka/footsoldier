@@ -1,6 +1,9 @@
-<h1>Editing Union Pay Bank</h1>
+<div class="flex flex-col items-center p-6 rounded-md sm:p-10 bg-gray-50 bg-coolGray-50 text-coolGray-800">
+  <div class="bg-white p-8 w-4/5 lg:w-2/5 rounded-md">
+    <h1 class="my-3 text-4xl font-bold">Editing Union Pay Bank</h1>
+    <%= render 'form', union_pay_bank: @union_pay_bank %>
 
-<%= render 'form', union_pay_bank: @union_pay_bank %>
-
-<%= link_to 'View current bank', @union_pay_bank %> |
-<%= link_to 'View All Banks', union_pay_banks_path %>
+    <%= link_to 'View current bank', @union_pay_bank %> |
+    <%= link_to 'View All Banks', union_pay_banks_path %>
+  </div>
+</div>
