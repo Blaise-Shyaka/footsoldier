@@ -7,7 +7,8 @@
     <tr>
       <th>Bank name</th>
       <th>Atm location</th>
-      <th colspan="3"></th>
+      <th>Transaction result</th>
+      <th colspan="2"></th>
     </tr>
   </thead>
 
@@ -16,6 +17,7 @@
       <tr>
         <td><%= union_pay_bank.bank_name %></td>
         <td><%= union_pay_bank.atm_location %></td>
+        <td><%= union_pay_bank.transaction_result %></td>
         <td><%= link_to 'Show', union_pay_bank %></td>
         <td><%= link_to 'Edit', edit_union_pay_bank_path(union_pay_bank) %></td>
       </tr>
