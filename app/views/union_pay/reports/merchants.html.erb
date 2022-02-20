@@ -1,84 +1,72 @@
-<p>
-  <%= link_to 'Merchants Report', union_pay_reports_merchants_path %> | 
-  <%= link_to 'ATMs/Banks Report', union_pay_reports_banks_path %> |
-  <%= link_to 'Merchants Report Analysis', union_pay_reports_merchants_analysis_path %> |
-  <%= link_to 'ATM/Banks Report Analysis', union_pay_reports_banks_analysis_path %>
-</p>
+<div>
+  <%= link_to 'Merchants Report', union_pay_reports_merchants_path, { style: 'color: white', class: "ml-4 text-white bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:ring-gray-300"} %>
+  <%= link_to 'ATMs/Banks Report', union_pay_reports_banks_path, { style: 'color: white', class: "ml-4 text-white bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:ring-gray-300"} %>
+  <%= link_to 'Merchants Report Analysis', union_pay_reports_merchants_analysis_path, { style: 'color: white', class: "ml-4 text-white bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:ring-gray-300"} %>
+  <%= link_to 'ATM/Banks Report Analysis', union_pay_reports_banks_analysis_path, { style: 'color: white', class: "ml-4 text-white bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:ring-gray-300"} %>
+  <%= link_to 'Download Merchants List', union_pay_reports_download_merchants_csv_path(format: "csv"), { style: 'color: white', class: "ml-4 text-white bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:ring-gray-300"} %>
+</div>
 
-<h1>Union Pay Merchants Report</h1>
+<h1 class="text-2xl font-bold text-center mt-10 leading-7 text-gray-900 sm:text-3xl sm:truncate">Union Pay Merchants Report</h1>
 
-<%= link_to 'Download Merchants List', union_pay_reports_download_merchants_csv_path(format: "csv") %>
-
-<table>
-  <thead>
-    <tr>
-      <th>Merchant name</th>
-      <th>Address</th>
-      <th>Mechant Category</th>
-      <th>Merchant accept international payment?</th>
-      <th>List merchant acquirers</th>
-      <th>Contactless - Card accepted?</th>
-      <th>Contactless - Why test not allowed</th>
-      <th>Contactless - Transaction result</th>
-      <th>Contactless - Transaction code</th>
-      <th>Contactless - Other cards accepted?</th>
-      <th>Contactless - Test scenario</th>
-      <th>Chip in POS - Card accepted?</th>
-      <th>Chip in POS - Why test not allowed</th>
-      <th>Chip in POS - Transaction result</th>
-      <th>Chip in POS - Transaction code</th>
-      <th>Chip in POS - Other cards accepted?</th>
-      <th>Chip in POS - Test scenario</th>
-      <th>Swipe card - Card accepted?</th>
-      <th>Swipe card - Why test not allowed</th>
-      <th>Swipe card - Transaction result</th>
-      <th>Swipe card - Transaction code</th>
-      <th>Swipe card - Other cards accepted?</th>
-      <th>Swipe card - Test scenario</th>
-      <th>Upi decal displayed before visit</th>
-      <th>Upi decal displayed after visit</th>
-      <th>Is visa or mastercard displayed</th>
-      <th>Contactless mark shown on UnionPay single decal?</th>
-      <th>VISA or Mastercard Contactless mark is shown on a single decal of Visa or Mastercard?</th>
-      <th>The contactless mark is shown on the Integrated Decal of multiple card schemes?</th>
-      <th>Special comments</th>
-    </tr>
-  </thead>
-
-  <tbody>
-    <% @merchants.each do |merchant| %>
-      <tr>
-        <td><%= merchant.merchant_name %></td>
-        <td><%= merchant.address %></td>
-        <td><%= merchant.merchant_category %></td>
-        <td><%= merchant.merchant_accept_international_payment %></td>
-        <td><%= merchant.merchant_has_multiple_acquirers %></td>
-        <td><%= merchant.contactless_upi_accepted %></td>
-        <td><%= merchant.contactless_why_upi_not_accepted %></td>
-        <td><%= merchant.contactless_purchase_transaction_result %></td>
-        <td><%= merchant.contactless_code %></td>
-        <td><%= merchant.contactless_other_card_schemes_accepted %></td>
-        <td><%= merchant.contactless_test_scenario %></td>
-        <td><%= merchant.chip_in_pos_upi_accepted %></td>
-        <td><%= merchant.chip_in_pos_why_upi_not_accepted %></td>
-        <td><%= merchant.chip_in_pos_purchase_transaction_result %></td>
-        <td><%= merchant.chip_in_pos_code %></td>
-        <td><%= merchant.chip_in_pos_other_card_schemes_accepted %></td>
-        <td><%= merchant.chip_in_pos_test_scenario %></td>
-        <td><%= merchant.swipe_upi_accepted %></td>
-        <td><%= merchant.swipe_why_upi_not_accepted %></td>
-        <td><%= merchant.swipe_purchase_transaction_result %></td>
-        <td><%= merchant.swipe_code %></td>
-        <td><%= merchant.swipe_other_card_schemes_accepted %></td>
-        <td><%= merchant.swipe_test_scenario %></td>
-        <td><%= merchant.upi_decal_displayed_before_visit %></td>
-        <td><%= merchant.upi_decal_displayed_after_visit %></td>
-        <td><%= merchant.is_visa_or_mastercard_displayed %></td>
-        <td><%= merchant.is_contactless_mark_shown_upi_single_decal %></td>
-        <td><%= merchant.is_visa_or_mastercard_contactless_mark_shown_on_single_decal %></td>
-        <td><%= merchant.is_contactless_mark_shown_on_integrated_decal %></td>
-        <td><%= merchant.special_comments %></td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
+<div class="flex flex-col items-center">
+  <div class="w-11/12 overflow-x-auto sm:-mx-6 lg:-mx-8">
+    <div class="inline-block py-2 min-w-full sm:px-6 lg:px-8">
+      <div class="overflow-hidden shadow-md sm:rounded-lg">
+        <table class="min-w-full">
+          <thead class="bg-gray-100 dark:bg-gray-700">
+            <tr>
+              <th scope="col" class="py-3 px-6 text-xs font-medium tracking-wider text-left text-gray-700 uppercase dark:text-gray-400">
+                Merchant Name
+              </th>
+              <th scope="col" class="py-3 px-6 text-xs font-medium tracking-wider text-left text-gray-700 uppercase dark:text-gray-400">
+                Address
+              </th>
+              <th scope="col" class="py-3 px-6 text-xs font-medium tracking-wider text-left text-gray-700 uppercase dark:text-gray-400">
+                Merchant Category
+              </th>
+              <th scope="col" class="py-3 px-6 text-xs font-medium tracking-wider text-left text-gray-700 uppercase dark:text-gray-400">
+                Transaction Result
+              </th>
+              <th scope="col" class="py-3 px-6 text-xs font-medium tracking-wider text-left text-gray-700 uppercase dark:text-gray-400">
+                Transaction Code
+              </th>
+              <th scope="col" class="py-3 px-6 text-xs font-medium tracking-wider text-left text-gray-700 uppercase dark:text-gray-400">
+                Branding Status
+              </th>
+              <th scope="col" class="py-3 px-6 text-xs font-medium tracking-wider text-left text-gray-700 uppercase dark:text-gray-400">
+                Special Comments
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @merchants.each do |merchant| %>
+              <tr class="border-b odd:bg-white even:bg-gray-50 odd:dark:bg-gray-800 even:dark:bg-gray-700 dark:border-gray-600">
+                <td class="py-4 px-6 text-sm font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                  <%= merchant.merchant_name %>
+                </td>
+                <td class="py-4 px-6 text-sm text-gray-500 whitespace-nowrap dark:text-gray-400">
+                  <%= merchant.address %>
+                </td>
+                <td class="py-4 px-6 text-sm text-gray-500 whitespace-nowrap dark:text-gray-400">
+                  <%= merchant.merchant_category %>
+                </td>
+                <td class="py-4 px-6 text-sm text-gray-500 whitespace-nowrap dark:text-gray-400">
+                  <%= merchant.chip_in_pos_purchase_transaction_result %>
+                </td>
+                <td class="py-4 px-6 text-sm text-gray-500 whitespace-nowrap dark:text-gray-400">
+                  <%= merchant.chip_in_pos_code %>
+                </td>
+                <td class="py-4 px-6 text-sm text-gray-500 whitespace-nowrap dark:text-gray-400">
+                  <%= merchant.upi_decal_displayed_after_visit == 'Yes' ? 'Branded during visit' : 'Pre-branded' %>
+                </td>
+                <td class="py-4 px-6 text-sm text-gray-500 whitespace-nowrap dark:text-gray-400">
+                  <%= merchant.special_comments %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
