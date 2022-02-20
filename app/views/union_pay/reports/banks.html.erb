@@ -54,7 +54,7 @@
                   <%= union_pay_bank.transaction_code %>
                 </td>
                 <td class="py-4 px-6 text-sm text-gray-500 dark:text-gray-400">
-                  <%= union_pay_bank.upi_decal_displayed_before_visit %>
+                  <%= union_pay_bank.upi_decal_displayed_before_visit == 'Physical decal' ? 'Yes' : 'No' %>
                 </td>
                 <td class="py-4 px-6 text-sm text-gray-500 dark:text-gray-400">
                   <%= union_pay_bank.upi_decal_displayed_after_visit %>
