@@ -69,6 +69,9 @@ class UnionPay::ReportsController < UnionPayController
     @both_visa_and_mastercard_contactless_on_decal =
       percentage_of(UnionPayMerchant.where(is_visa_or_mastercard_contactless_mark_shown_on_single_decal: 'Both of them shown').length, 
                     UnionPayMerchant.all.length)
+    
+    @approved_transactions_codes = UnionPayMerchant.where(chip_in_pos_purchase_transaction_result: 'Approved').group(:chip_in_pos_code).count
+    @failed_transactions_codes = UnionPayMerchant.where(chip_in_pos_purchase_transaction_result: 'Failed').group(:chip_in_pos_code).count
   end
 
   def banks_analysis
