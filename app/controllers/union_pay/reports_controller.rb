@@ -94,6 +94,10 @@ class UnionPay::ReportsController < UnionPayController
                                                       UnionPayBank.all.length)
     @visa_and_mastercard_decal_displayed = percentage_of(UnionPayBank.where(is_visa_or_mastercard_displayed: 'Yes').length,
                                                         UnionPayBank.all.length)
+
+    @approved_transactions_codes = UnionPayBank.where(transaction_result: 'Approved').group(:transaction_code).count
+
+    @failed_transactions_codes = UnionPayBank.where(transaction_result: 'Failed').group(:transaction_code).count
   end
 
   def download_merchants_csv
