@@ -132,7 +132,7 @@
           <thead class="bg-gray-100 dark:bg-gray-700">
             <tr>
               <th scope="col" class="py-3 px-6 text-xs font-medium tracking-wider text-left text-gray-700 uppercase dark:text-gray-400">
-                Transaction Result/Transaction Code
+                Response Code
               </th>
               <% @approved_transactions_codes.keys.each do |key| %>
                 <th scope="col" class="py-3 px-6 text-xs font-medium tracking-wider text-left text-gray-700 uppercase dark:text-gray-400">
@@ -144,7 +144,7 @@
           <tbody>
               <tr class="border-b odd:bg-white even:bg-gray-50 odd:dark:bg-gray-800 even:dark:bg-gray-700 dark:border-gray-600">
                 <td class="py-4 px-6 text-sm font-medium text-gray-900 dark:text-white">
-                  Approved
+                  Number of Transactions
                 </td>
                 <% @approved_transactions_codes.values.each do |code| %>
                   <td class="py-4 px-6 text-sm text-gray-500 dark:text-gray-400">
@@ -169,7 +169,7 @@
           <thead class="bg-gray-100 dark:bg-gray-700">
             <tr>
               <th scope="col" class="py-3 px-6 text-xs font-medium tracking-wider text-left text-gray-700 uppercase dark:text-gray-400">
-                Transaction Result/Transaction Code
+                Response Code
               </th>
               <% @failed_transactions_codes.keys.each do |key| %>
                 <th scope="col" class="py-3 px-6 text-xs font-medium tracking-wider text-left text-gray-700 uppercase dark:text-gray-400">
@@ -181,7 +181,7 @@
           <tbody>
               <tr class="border-b odd:bg-white even:bg-gray-50 odd:dark:bg-gray-800 even:dark:bg-gray-700 dark:border-gray-600">
                 <td class="py-4 px-6 text-sm font-medium text-gray-900 dark:text-white">
-                  Failed
+                  Number of Transactions
                 </td>
                 <% @failed_transactions_codes.values.each do |code| %>
                   <td class="py-4 px-6 text-sm text-gray-500 dark:text-gray-400">
