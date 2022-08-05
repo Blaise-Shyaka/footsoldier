@@ -10,10 +10,35 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_02_10_054226) do
+ActiveRecord::Schema.define(version: 2022_08_04_113435) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "bk_arena_pre_registrations", force: :cascade do |t|
+    t.string "first_name", null: false
+    t.string "last_name", null: false
+    t.string "id_type", null: false
+    t.string "id_number", null: false
+    t.string "tel_no", null: false
+    t.string "email", default: "", null: false
+    t.string "gender", null: false
+    t.boolean "spouse", null: false
+    t.boolean "son_daughter", null: false
+    t.boolean "parent", null: false
+    t.boolean "brother_sister", null: false
+    t.string "other", default: ""
+    t.string "province", null: false
+    t.string "district", null: false
+    t.string "sector", default: ""
+    t.string "cell", default: ""
+    t.string "village", default: ""
+    t.string "preferred_branch", null: false
+    t.integer "authorized_by"
+    t.integer "user_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
 
   create_table "chef_wumujyis", force: :cascade do |t|
     t.string "vehicle_type"
@@ -104,6 +129,10 @@ ActiveRecord::Schema.define(version: 2022_02_10_054226) do
     t.boolean "works_with_upi_banks", default: false
     t.boolean "is_upi_client", default: false
     t.boolean "is_engen_client", default: false
+    t.boolean "works_with_bk_arena", default: false
+    t.boolean "is_bk_arena_client", default: false
+    t.boolean "is_bk_arena_agent", default: false
+    t.string "bk_arena_branch", default: ""
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end

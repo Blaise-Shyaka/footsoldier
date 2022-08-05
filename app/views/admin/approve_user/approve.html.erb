@@ -21,6 +21,11 @@
               label: "Promoter Works with UPI Banks?",
               required: true,
               prompt: "Select Option"%>
+  <%= f.input :works_with_bk_arena,
+              collection: [true, false],
+              label: "Promoter Works with BK Arena?",
+              required: true,
+              prompt: "Select Option"%>
   <%= f.input :admin_secret_key, required: true %>
   <%= f.button :submit %>
 <% end %>

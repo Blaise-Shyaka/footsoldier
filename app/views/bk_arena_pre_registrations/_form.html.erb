@@ -1,0 +1,226 @@
+
+<%= simple_form_for(@bk_arena_pre_registration) do |f| %>
+    <%= f.error_notification %>
+    <%= f.error_notification message: f.object.errors[:base].to_sentence if f.object.errors[:base].present? %>
+
+    <div>
+    <div><h4 class="my-6 text-4lg font-bold">1. CUSTOMER DETAILS</h4></div>
+      <div class="field">
+        <%= f.label "FIRST NAME", class: "block text-sm"%>
+        <%= f.text_field :first_name,
+          placeholder: "Malik",
+          class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4",
+          autofocus: true%>
+      </div>
+      <div class="field">
+        <%= f.label "SURNAME", class: "block text-sm"%>
+        <%= f.text_field :last_name,
+          placeholder: "KANEZA",
+          class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4",
+          autofocus: true%>
+      </div>
+      <div class="field">
+        <%= f.label "NATIONAL ID TYPE", class: "block text-sm"%>
+        <%= f.input_field :id_type,
+                    collection: [
+                      'Passport',
+                      'National ID',
+                    ],
+                    class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4",
+                    required: true,
+                    prompt: 'Select option' %>
+      </div>
+      <div class="field">
+        <%= f.label "ID NUMBER / Passport number", class: "block text-sm"%>
+        <%= f.text_field :id_number,
+          placeholder: "1199000000000000 / PC009009",
+          class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4",
+          autofocus: true%>
+      </div>
+      <div class="field">
+        <%= f.label "GENDER", class: "block text-sm"%>
+        <%= f.input_field :gender,
+                    collection: [
+                      'Male',
+                      'Female',
+                    ],
+                    class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4",
+                    required: true,
+                    prompt: 'Select option' %>
+      </div>
+      <div class="field">
+        <%= f.label "MOBILE TEL No.", class: "block text-sm"%>
+        <%= f.input_field :tel_no,
+          placeholder: "0780000000",
+          class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4",
+          autofocus: true%>
+      </div>
+      <div class="field">
+        <%= f.label "EMAIL", class: "block text-sm"%>
+        <%= f.input_field :email,
+          placeholder: "mail@mail.com",
+          class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4",
+          autofocus: true%>
+      </div>
+      <div class="field">
+        <%= f.label "PREFERRED ISSUING BRANCH", class: "block text-sm"%>
+        <%= f.input_field :preferred_branch,
+                    collection: [ 'BK Airport Branch',
+                    'BK DP world Branch',
+                    'BK Economic zone Branch',
+                    'BK Gikondo Branch',
+                    'BK Giporoso Branch',
+                    'BK Gisozi Branch',
+                    'BK Gkondo Magerwa Branch',
+                    'BK Head office Branch',
+                    'BK Kabuga Branch',
+                    'BK Kicukiro Branch',
+                    'BK Kigali City Market Branch',
+                    'BK Kigali height Branch',
+                    'BK Kimironko Branch',
+                    'BK Kinamba Branch',
+                    'BK MTN center Branch',
+                    'BK Nyabugogo Branch',
+                    'BK Nyamirambo Branch',
+                    'BK Pension Branch',
+                    'BK RDB Branch',
+                    'BK Remera corner Branch',
+                    'BK Town Branch' ],
+                    class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4",
+                    required: true,
+                    prompt: 'Select option' %>
+      </div>
+      <div><h4 class="my-6 text-4lg font-bold">2. SUPPLEMENTARY CARD (OPTIONAL)</h4></div>
+      <div class="field">
+        <%= f.label "SPOUSE", class: "text-sm"%>
+        <%= f.input_field :spouse,
+                    collection: [
+                      ['Yes', true],
+                      ['No', false],
+                    ],
+                    class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4",
+                    required: true,
+                    prompt: 'Select option' %>
+      </div>
+      <div class="field">
+        <%= f.label "PARENT", class: "text-sm"%>
+        <%= f.input_field :parent,
+                    collection: [
+                      ['Yes', true],
+                      ['No', false],
+                    ],
+                    class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4",
+                    required: true,
+                    prompt: 'Select option' %>
+      </div>
+      <div class="field">
+        <%= f.label "SON/DAUGTHER", class: "text-sm"%>
+        <%= f.input_field :son_daughter,
+                    collection: [
+                      ['Yes', true],
+                      ['No', false],
+                    ],
+                    class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4",
+                    required: true,
+                    prompt: 'Select option' %>
+      </div>
+      <div class="field">
+        <%= f.label "BROTHER/SISTER", class: "text-sm"%>
+        <%= f.input_field :brother_sister,
+                    collection: [
+                      ['Yes', true],
+                      ['No', false],
+                    ],
+                    class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4",
+                    required: true,
+                    prompt: 'Select option' %>
+      </div>
+      <div class="field">
+        <%= f.label "Other", class: "block text-sm"%>
+        <%= f.input_field :other,
+          placeholder: "Please Specify",
+          class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4",
+          autofocus: true%>
+      </div>
+      <div><h4 class="my-6 text-4lg font-bold">3. PERMANENT DETAILS</h4></div>
+      <div class="field">
+        <%= f.label "PROVINCE", class: "text-sm"%>
+        <%= f.input_field :province,
+                    collection: [
+                      'North',
+                      'South',
+                      'West',
+                      'East',
+                      'Kigali'
+                    ],
+                    class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4",
+                    required: true,
+                    prompt: 'Select option' %>
+      </div>
+      <div class="field">
+        <%= f.label "DISTRICT", class: "text-sm"%>
+        <%= f.input_field :district,
+                    collection: [
+                    'Bugesera',
+                    'Burera',
+                    'Gakenke',
+                    'Gasabo',
+                    'Gatsibo',
+                    'Gicumbi',
+                    'Gisagara',
+                    'Huye',
+                    'Kamonyi',
+                    'Karongi',
+                    'Kayonza',
+                    'Kicukiro',
+                    'Kirehe',
+                    'Muhanga',
+                    'Musanze',
+                    'Ngoma',
+                    'Ngororero',
+                    'Nyabihu',
+                    'Nyagatare',
+                    'Nyamagabe',
+                    'Nyamasheke',
+                    'Nyanza',
+                    'Nyarugenge',
+                    'Nyaruguru',
+                    'Rubavu',
+                    'Ruhango',
+                    'Rulindo',
+                    'Rusizi',
+                    'Rutsiro',
+                    'Rwamagana' ],
+                    class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4",
+                    required: true,
+                    prompt: 'Select option' %>
+      </div>
+      <div class="field">
+        <%= f.label "Sector", class: "block text-sm"%>
+        <%= f.input_field :sector,
+          placeholder: "Kacyiru",
+          class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4",
+          autofocus: true%>
+      </div>
+      <div class="field">
+        <%= f.label "Cell", class: "block text-sm"%>
+        <%= f.input_field :cell,
+          placeholder: "Remera",
+          class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4",
+          autofocus: true%>
+      </div>
+      <div class="field">
+        <%= f.label "Village", class: "block text-sm"%>
+        <%= f.input_field :village,
+          placeholder: "Cyimana",
+          class: "w-full px-3 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 block text-sm my-4",
+          autofocus: true%>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <%= f.button :submit, "Submit", class: "w-full px-8 py-3 rounded-md text-white bg-indigo-600 hover:bg-indigo-700" %>
+    </div><br>
+<% end %>
+
+

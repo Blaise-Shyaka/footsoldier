@@ -1,0 +1,25 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Bk Arena Pre Registrations</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @bk_arena_pre_registrations.each do |bk_arena_pre_registration| %>
+      <tr>
+        <td><%= link_to 'Show', bk_arena_pre_registration %></td>
+        <td><%= link_to 'Edit', edit_bk_arena_pre_registration_path(bk_arena_pre_registration) %></td>
+        <td><%= link_to 'Destroy', bk_arena_pre_registration, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Bk Arena Pre Registration', new_bk_arena_pre_registration_path %>

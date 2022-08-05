@@ -2,6 +2,8 @@ class ApplicationController < ActionController::Base
   def after_sign_in_path_for(resource_or_scope)
     if current_user.is_promoter && current_user.works_with_upi_merchants
       union_pay_merchants_path
+    elsif current_user.is_promoter && current_user.works_with_bk_arena
+      bk_arena_pre_registrations_path
     elsif current_user.is_promoter && current_user.works_with_upi_banks
       union_pay_banks_path
     elsif current_user.is_promoter && current_user.works_with_engen
