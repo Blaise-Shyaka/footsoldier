@@ -1,7 +1,7 @@
 class BkArenaPreRegistrationsController < ApplicationController
   before_action :set_bk_arena_pre_registration, only: %i[ show edit update destroy ]
-  before_action :authenticate_user
-  before_action :verify_promoter_credentials
+  #before_action :authenticate_user
+  #before_action :verify_promoter_credentials
 
   # GET /bk_arena_pre_registrations or /bk_arena_pre_registrations.json
   def index
