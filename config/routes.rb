@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :bk_arena_pre_registrations
   root :to => "home#home"
   get 'home', to: 'home#home'
   resources :chef_wumujyis

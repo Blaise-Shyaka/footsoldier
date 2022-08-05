@@ -1,0 +1,1 @@
+json.partial! "bk_arena_pre_registrations/bk_arena_pre_registration", bk_arena_pre_registration: @bk_arena_pre_registration
