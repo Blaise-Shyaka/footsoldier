@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_08_04_113435) do
+ActiveRecord::Schema.define(version: 2022_08_08_114505) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -23,10 +23,10 @@ ActiveRecord::Schema.define(version: 2022_08_04_113435) do
     t.string "tel_no", null: false
     t.string "email", default: "", null: false
     t.string "gender", null: false
-    t.boolean "spouse", null: false
-    t.boolean "son_daughter", null: false
-    t.boolean "parent", null: false
-    t.boolean "brother_sister", null: false
+    t.boolean "spouse", default: false
+    t.boolean "son_daughter", default: false
+    t.boolean "parent", default: false
+    t.boolean "brother_sister", default: false
     t.string "other", default: ""
     t.string "province", null: false
     t.string "district", null: false

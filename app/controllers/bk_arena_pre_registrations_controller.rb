@@ -1,11 +1,11 @@
 class BkArenaPreRegistrationsController < ApplicationController
   before_action :set_bk_arena_pre_registration, only: %i[ show edit update destroy ]
-  #before_action :authenticate_user
-  #before_action :verify_promoter_credentials
+  before_action :authenticate_user
+  before_action :verify_promoter_credentials
 
   # GET /bk_arena_pre_registrations or /bk_arena_pre_registrations.json
   def index
-    @bk_arena_pre_registrations = BkArenaPreRegistration.all
+    @bk_arena_pre_registrations = current_user.bk_arena_pre_registrations.all
   end
 
   # GET /bk_arena_pre_registrations/1 or /bk_arena_pre_registrations/1.json
@@ -23,7 +23,7 @@ class BkArenaPreRegistrationsController < ApplicationController
 
   # POST /bk_arena_pre_registrations or /bk_arena_pre_registrations.json
   def create
-    @bk_arena_pre_registration = BkArenaPreRegistration.new(bk_arena_pre_registration_params)
+    @bk_arena_pre_registration = current_user.bk_arena_pre_registrations.new(bk_arena_pre_registration_params)
 
     respond_to do |format|
       if @bk_arena_pre_registration.save
