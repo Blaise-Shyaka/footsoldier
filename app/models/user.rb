@@ -6,5 +6,6 @@ class User < ApplicationRecord
   has_many :union_pay_merchants
   has_many :union_pay_banks
   has_many :chef_wumujyis
+  has_many :bk_arena_pre_registrations
   validates_length_of :telephone_number, minimum: 10, maximum: 10
 end

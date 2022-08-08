@@ -1,25 +1,46 @@
+<br />
+<br />
 <p id="notice"><%= notice %></p>
+<%= link_to 'New VISA Application', new_bk_arena_pre_registration_path, class: "w-full px-8 py-3 rounded-md text-white-600 bg-indigo-600 hover:bg-indigo-700", style: 'color: white' %>
 
-<h1>Bk Arena Pre Registrations</h1>
+<h1 class="text-2xl font-bold text-center mt-10 leading-7 text-gray-900 sm:text-3xl sm:truncate">VISA Prepaid Card Applications</h1>
 
-<table>
-  <thead>
-    <tr>
-      <th colspan="3"></th>
-    </tr>
-  </thead>
+<div class="flex flex-col items-center">
+  <div style="width:98%" class="overflow-x-auto sm:-mx-6 lg:-mx-8">
+    <div class="inline-block py-2 min-w-full sm:px-6 lg:px-8">
+      <div class="overflow-hidden shadow-md sm:rounded-lg">
+        <table class="min-w-full">
+          <thead class="bg-gray-100 dark:bg-gray-700">
+            <tr>
+              <th scope="col" class="py-3 px-6 text-xs font-medium tracking-wider text-left text-gray-700 uppercase dark:text-gray-400">
+                Full Names
+              </th>
+              <th scope="col" class="py-3 px-6 text-xs font-medium tracking-wider text-left text-gray-700 uppercase dark:text-gray-400">
+                ID/Passport
+              </th>
+              <th scope="col" class="py-3 px-6 text-xs font-medium tracking-wider text-left text-gray-700 uppercase dark:text-gray-400">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @bk_arena_pre_registrations.each do |bk_arena_pre_registration| %>
+              <tr class="border-b odd:bg-white even:bg-gray-50 odd:dark:bg-gray-800 even:dark:bg-gray-700 dark:border-gray-600">
+                <td class="py-4 px-6 text-sm font-medium text-gray-900 dark:text-white">
+                  <%= link_to "#{bk_arena_pre_registration.first_name} #{bk_arena_pre_registration.last_name}", bk_arena_pre_registration_path(bk_arena_pre_registration) %>
+                </td>
+                <td class="py-4 px-6 text-sm text-gray-500 dark:text-gray-400">
+                  <%= bk_arena_pre_registration.id_number %>
+                </td>
+                <td class="py-4 px-6 text-sm text-gray-500 dark:text-gray-400">
+                  <%= link_to 'Edit', edit_bk_arena_pre_registration_path(bk_arena_pre_registration), class: "w-full px-8 py-3 rounded-md text-white-600 bg-indigo-600 hover:bg-indigo-700", style: 'color: white' %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
 
-  <tbody>
-    <% @bk_arena_pre_registrations.each do |bk_arena_pre_registration| %>
-      <tr>
-        <td><%= link_to 'Show', bk_arena_pre_registration %></td>
-        <td><%= link_to 'Edit', edit_bk_arena_pre_registration_path(bk_arena_pre_registration) %></td>
-        <td><%= link_to 'Destroy', bk_arena_pre_registration, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
-
-<br>
-
-<%= link_to 'New Bk Arena Pre Registration', new_bk_arena_pre_registration_path %>
