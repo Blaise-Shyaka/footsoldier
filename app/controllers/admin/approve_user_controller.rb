@@ -29,6 +29,7 @@ class Admin::ApproveUserController < AdminController
       :works_with_upi_banks,
       :works_with_upi_merchants,
       :works_with_bk_arena,
+      :bk_arena_admin,
       :admin_secret_key
     )
   end

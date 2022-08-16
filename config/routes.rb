@@ -28,4 +28,8 @@ Rails.application.routes.draw do
     get "reports/sales_per_promoter"
     get "reports/download_csv", format: 'csv'
   end
+
+  namespace :bk_arena do
+    get "reports/general_report"
+  end
 end

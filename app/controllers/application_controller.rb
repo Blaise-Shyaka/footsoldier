@@ -4,6 +4,8 @@ class ApplicationController < ActionController::Base
       union_pay_merchants_path
     elsif current_user.is_promoter && current_user.works_with_bk_arena
       bk_arena_pre_registrations_path
+    elsif current_user.bk_arena_admin
+      bk_arena_reports_general_report_path
     elsif current_user.is_promoter && current_user.works_with_upi_banks
       union_pay_banks_path
     elsif current_user.is_promoter && current_user.works_with_engen
