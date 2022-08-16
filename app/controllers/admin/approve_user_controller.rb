@@ -30,6 +30,7 @@ class Admin::ApproveUserController < AdminController
       :works_with_upi_merchants,
       :works_with_bk_arena,
       :bk_arena_admin,
+      :bk_arena_branch,
       :is_bk_arena_agent,
       :admin_secret_key
     )
