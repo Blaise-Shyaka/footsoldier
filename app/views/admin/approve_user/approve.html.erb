@@ -26,6 +26,11 @@
               label: "Promoter Works with BK Arena?",
               required: true,
               prompt: "Select Option"%>
+  <%= f.input :bk_arena_admin,
+              collection: [true, false],
+              label: "Is BK Arena Admin?",
+              required: true,
+              prompt: "Select Option"%>
   <%= f.input :admin_secret_key, required: true %>
   <%= f.button :submit %>
 <% end %>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_08_08_114505) do
+ActiveRecord::Schema.define(version: 2022_08_16_073011) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -38,6 +38,9 @@ ActiveRecord::Schema.define(version: 2022_08_08_114505) do
     t.integer "user_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "card_first_four_digits"
+    t.string "card_last_four_digits"
+    t.string "issuing_branch"
   end
 
   create_table "chef_wumujyis", force: :cascade do |t|
@@ -133,6 +136,7 @@ ActiveRecord::Schema.define(version: 2022_08_08_114505) do
     t.boolean "is_bk_arena_client", default: false
     t.boolean "is_bk_arena_agent", default: false
     t.string "bk_arena_branch", default: ""
+    t.boolean "bk_arena_admin", default: false
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
