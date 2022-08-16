@@ -1,0 +1,9 @@
+<%= simple_form_for :search, url: bk_arena_issue_card_search_path, method: "get" do |f| %>
+    <div class="field">
+      <%= f.text_field :query,
+        placeholder: "ID Number or Phone Number",
+        class: "px-1 py-2 border rounded-md border-coolGray-300 bg-coolGray-50 text-sm my-4",
+        autofocus: true%>
+        <%= f.button :submit, "Search", class: "px-4 py-3 rounded-md text-white bg-indigo-600 hover:bg-indigo-700" %>
+    </div>
+<% end %>

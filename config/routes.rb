@@ -31,5 +31,8 @@ Rails.application.routes.draw do
 
   namespace :bk_arena do
     get "reports/general_report"
+    get "issue_card/search_client"
+    get "issue_card/search"
+    get "issue_card/:id/edit" => "issue_card#edit"
   end
 end

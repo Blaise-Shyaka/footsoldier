@@ -3,6 +3,10 @@
 <p id="notice"><%= notice %></p>
 <%= link_to 'New VISA Application', new_bk_arena_pre_registration_path, class: "w-full px-8 py-3 rounded-md text-white-600 bg-indigo-600 hover:bg-indigo-700", style: 'color: white' %>
 
+<% if (current_user && current_user.is_bk_arena_agent) %>
+  <%= link_to 'Issue Card', bk_arena_issue_card_search_client_path, class: "w-full px-8 py-3 rounded-md text-white-600 bg-indigo-600 hover:bg-indigo-700", style: 'color: white' %>
+<% end %>
+
 <h1 class="text-2xl font-bold text-center mt-10 leading-7 text-gray-900 sm:text-3xl sm:truncate">VISA Prepaid Card Applications</h1>
 
 <div class="flex flex-col items-center">
@@ -24,19 +28,23 @@
             </tr>
           </thead>
           <tbody>
-            <% @bk_arena_pre_registrations.each do |bk_arena_pre_registration| %>
-              <tr class="border-b odd:bg-white even:bg-gray-50 odd:dark:bg-gray-800 even:dark:bg-gray-700 dark:border-gray-600">
-                <td class="py-4 px-6 text-sm font-medium text-gray-900 dark:text-white">
-                  <%= link_to "#{bk_arena_pre_registration.first_name} #{bk_arena_pre_registration.last_name}", bk_arena_pre_registration_path(bk_arena_pre_registration) %>
-                </td>
-                <td class="py-4 px-6 text-sm text-gray-500 dark:text-gray-400">
-                  <%= bk_arena_pre_registration.id_number %>
-                </td>
-                <td class="py-4 px-6 text-sm text-gray-500 dark:text-gray-400">
-                  <%= link_to 'Edit', edit_bk_arena_pre_registration_path(bk_arena_pre_registration), class: "w-full px-8 py-3 rounded-md text-white-600 bg-indigo-600 hover:bg-indigo-700", style: 'color: white' %>
-                </td>
-              </tr>
-            <% end %>
+          <% if(!@bk_arena_pre_registrations.length.zero?) %>
+          <% @bk_arena_pre_registrations.each do |bk_arena_pre_registration| %>
+            <tr class="border-b odd:bg-white even:bg-gray-50 odd:dark:bg-gray-800 even:dark:bg-gray-700 dark:border-gray-600">
+              <td class="py-4 px-6 text-sm font-medium text-gray-900 dark:text-white">
+                <%= link_to "#{bk_arena_pre_registration.first_name} #{bk_arena_pre_registration.last_name}", bk_arena_pre_registration_path(bk_arena_pre_registration) %>
+              </td>
+              <td class="py-4 px-6 text-sm text-gray-500 dark:text-gray-400">
+                <%= bk_arena_pre_registration.id_number %>
+              </td>
+              <td class="py-4 px-6 text-sm text-gray-500 dark:text-gray-400">
+                <%= link_to 'Edit', edit_bk_arena_pre_registration_path(bk_arena_pre_registration), class: "w-full px-8 py-3 rounded-md text-white-600 bg-indigo-600 hover:bg-indigo-700", style: 'color: white' %>
+              </td>
+            </tr>
+          <% end %>
+        <% else %>
+           <tr class="py-4 px-6 text-sm text-gray-500 dark:text-gray-400"><td class="text-center">No Items Found</td></tr>
+        <% end %>
           </tbody>
         </table>
       </div>

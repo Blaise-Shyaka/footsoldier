@@ -49,7 +49,7 @@
                   <%= "#{client.user.first_name} #{client.user.last_name}" %>
                 </td>
                 <td class="py-4 px-6 text-sm text-gray-500 dark:text-gray-400">
-                  <%= client.authorized_by ? client.authorized_by : "Card Not Yet Issued" %>
+                  <%= client.authorized_by ? "#{@promoters.find(client.authorized_by).first_name} #{@promoters.find(client.authorized_by).last_name}" : "Card Not Yet Issued" %>
                 </td>
                 <td class="py-4 px-6 text-sm text-gray-500 dark:text-gray-400">
                   <%= client.updated_at.to_date %>
