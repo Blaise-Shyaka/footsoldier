@@ -85,6 +85,10 @@ class BkArenaPreRegistrationsController < ApplicationController
       :cell,
       :village,
       :preferred_branch,
+      :authorized_by,
+      :issuing_branch,
+      :card_first_four_digits,
+      :card_last_four_digits
       )
     end
 

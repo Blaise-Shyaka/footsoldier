@@ -31,6 +31,34 @@
               label: "Is BK Arena Admin?",
               required: true,
               prompt: "Select Option"%>
+  <%= f.input :is_bk_arena_agent,
+              collection: [true, false],
+              label: "Is BK Arena Agent?",
+              required: true,
+              prompt: "Select Option"%>
+  <%= f.input :bk_arena_branch,
+              collection: [ 'BK Airport Branch',
+              'BK DP world Branch',
+              'BK Economic zone Branch',
+              'BK Gikondo Branch',
+              'BK Giporoso Branch',
+              'BK Gisozi Branch',
+              'BK Gkondo Magerwa Branch',
+              'BK Head office Branch',
+              'BK Kabuga Branch',
+              'BK Kicukiro Branch',
+              'BK Kigali City Market Branch',
+              'BK Kigali height Branch',
+              'BK Kimironko Branch',
+              'BK Kinamba Branch',
+              'BK MTN center Branch',
+              'BK Nyabugogo Branch',
+              'BK Nyamirambo Branch',
+              'BK Pension Branch',
+              'BK RDB Branch',
+              'BK Remera corner Branch',
+              'BK Town Branch' ],
+              prompt: 'Select option' %>
   <%= f.input :admin_secret_key, required: true %>
   <%= f.button :submit %>
 <% end %>

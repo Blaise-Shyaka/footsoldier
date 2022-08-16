@@ -103,7 +103,9 @@
         </dd>
       </div>
     </dl>
-    <%= link_to 'Edit Application', edit_bk_arena_pre_registration_path(@bk_arena_pre_registration), class: "w-full px-8 py-3 rounded-md text-white-600 bg-indigo-600 hover:bg-indigo-700", style: 'color: white' %>
+    <% if(current_user.id === @bk_arena_pre_registration.user.id) %>
+      <%= link_to 'Edit Application', edit_bk_arena_pre_registration_path(@bk_arena_pre_registration), class: "w-full px-8 py-3 rounded-md text-white-600 bg-indigo-600 hover:bg-indigo-700", style: 'color: white' %>
+    <% end %>
     <br/>
     <br/>
   </div>
