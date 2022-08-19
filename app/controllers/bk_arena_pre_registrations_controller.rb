@@ -5,7 +5,7 @@ class BkArenaPreRegistrationsController < ApplicationController
 
   # GET /bk_arena_pre_registrations or /bk_arena_pre_registrations.json
   def index
-    @bk_arena_pre_registrations = current_user.bk_arena_pre_registrations.all
+    @bk_arena_pre_registrations = current_user.bk_arena_pre_registrations.all.order(updated_at: :desc)
   end
 
   # GET /bk_arena_pre_registrations/1 or /bk_arena_pre_registrations/1.json
