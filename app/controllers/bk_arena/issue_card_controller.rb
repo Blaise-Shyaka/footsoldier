@@ -3,7 +3,7 @@ class BkArena::IssueCardController < BkArenaController
   before_action :verify_promoter_credentials
 
   def search_client
-    @bk_arena_pre_registrations = BkArenaPreRegistration.all
+    @bk_arena_pre_registrations = BkArenaPreRegistration.all.order(updated_at: :desc)
   end
 
   def search
