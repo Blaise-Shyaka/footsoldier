@@ -24,4 +24,6 @@ class BkArenaPreRegistration < ApplicationRecord
             :presence => {:message => "can't be empty"}
   validates :gender,
             :presence => {:message => "can't be empty"}
+  validates :id_number,
+            :uniqueness => {:message => "already exists"}
 end

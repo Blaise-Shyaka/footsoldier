@@ -27,7 +27,13 @@
                 <div class="sm:flex sm:items-start">
                     <div class="text-center sm:mt-0 sm:ml-2 sm:text-left">
                         <h3 class="text-sm leading-6 font-medium text-gray-400">Cards Issuing Rate</h3>
-                        <p class="text-xl font-bold text-black"><%= (@total_cards_issued * 100) / @bk_arena_clients.all.length %>%</p>
+                        <p class="text-xl font-bold text-black">
+                          <% if(!@bk_arena_clients.all.length.zero?) %>
+                            <%= (@total_cards_issued * 100) / @bk_arena_clients.all.length %>%
+                          <% else %>
+                            0%
+                          <% end %>
+                          </p>
                     </div>
                 </div>
             </div>

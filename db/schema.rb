@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_08_16_073011) do
+ActiveRecord::Schema.define(version: 2022_08_24_101805) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -41,6 +41,7 @@ ActiveRecord::Schema.define(version: 2022_08_16_073011) do
     t.string "card_first_four_digits"
     t.string "card_last_four_digits"
     t.string "issuing_branch"
+    t.index ["id_number"], name: "index_bk_arena_pre_registrations_on_id_number", unique: true
   end
 
   create_table "chef_wumujyis", force: :cascade do |t|

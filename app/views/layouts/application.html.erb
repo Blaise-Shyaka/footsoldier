@@ -29,7 +29,7 @@
           </svg>
         </button>
         <div>
-          <% if current_user.bk_arena_admin %>
+          <% if current_user&.bk_arena_admin %>
             <%= link_to "General Report", bk_arena_reports_general_report_path, { style: 'color: white', :class => "ml-40 text-white hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded" } %>
             <%= link_to "Individual Performance", bk_arena_reports_individual_performance_path, { style: 'color: white', :class => "ml-4 text-white hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded" } %>
           <% end %>
