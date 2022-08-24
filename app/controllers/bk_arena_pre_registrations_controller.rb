@@ -26,12 +26,17 @@ class BkArenaPreRegistrationsController < ApplicationController
     @bk_arena_pre_registration = current_user.bk_arena_pre_registrations.new(bk_arena_pre_registration_params)
 
     respond_to do |format|
-      if @bk_arena_pre_registration.save
-        format.html { redirect_to @bk_arena_pre_registration, notice: "Bk arena pre registration was successfully created." }
-        format.json { render :show, status: :created, location: @bk_arena_pre_registration }
-      else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @bk_arena_pre_registration.errors, status: :unprocessable_entity }
+      begin
+        if @bk_arena_pre_registration.save
+          format.html { redirect_to @bk_arena_pre_registration, notice: "Bk arena pre registration was successfully created." }
+          format.json { render :show, status: :created, location: @bk_arena_pre_registration }
+        else
+          format.html { render :new, status: :unprocessable_entity }
+          format.json { render json: @bk_arena_pre_registration.errors, status: :unprocessable_entity }
+        end
+      rescue ActiveRecord::RecordNotUnique
+          format.html { render :new, status: :unprocessable_entity }
+          format.json { render json: @bk_arena_pre_registration.errors, status: :unprocessable_entity }
       end
     end
   end
