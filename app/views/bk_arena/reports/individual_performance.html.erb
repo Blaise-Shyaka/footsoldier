@@ -1,0 +1,52 @@
+<h1 class="text-2xl font-bold text-center mt-5 leading-7 text-gray-900 sm:text-3xl sm:truncate">Individual BK Arena Promoter Performance</h1>
+
+<div class="flex flex-col items-center">
+  <div style="width:98%" class="overflow-x-auto sm:-mx-6 lg:-mx-8">
+    <div class="inline-block py-1 min-w-full sm:px-6 lg:px-8">
+      <div class="overflow-y-scroll max-h-80 shadow-md sm:rounded-lg">
+        <table class="min-w-full">
+          <thead class="bg-gray-100 dark:bg-gray-700">
+            <tr>
+              <th scope="col" class="py-3 px-6 text-xs font-medium tracking-wider text-left text-gray-700 uppercase dark:text-gray-400">
+                Promoter Full Name
+              </th>
+              <th scope="col" class="py-3 px-6 text-xs font-medium tracking-wider text-left text-gray-700 uppercase dark:text-gray-400">
+                Branch Name (if any)
+              </th>
+              <th scope="col" class="py-3 px-6 text-xs font-medium tracking-wider text-left text-gray-700 uppercase dark:text-gray-400">
+                Nber of Pre-registrations
+              </th>
+              <th scope="col" class="py-3 px-6 text-xs font-medium tracking-wider text-left text-gray-700 uppercase dark:text-gray-400">
+                Total Nber of Cards Issued
+              </th>
+              <th scope="col" class="py-3 px-6 text-xs font-medium tracking-wider text-left text-gray-700 uppercase dark:text-gray-400">
+                Nber of Cards Issued To Pre-registered Clients
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @promoters.each do |promoter| %>
+              <tr class="border-b odd:bg-white even:bg-gray-50 odd:dark:bg-gray-800 even:dark:bg-gray-700 dark:border-gray-600">
+                <td class="py-4 px-6 text-sm font-medium text-gray-900 dark:text-white">
+                  <%= "#{promoter.first_name} #{promoter.last_name}" %>
+                </td>
+                <td class="py-4 px-6 text-sm text-gray-500 dark:text-gray-400">
+                  <%= promoter.is_bk_arena_agent ? promoter.bk_arena_branch : "-" %>
+                </td>
+                <td class="py-4 px-6 text-sm text-gray-500 dark:text-gray-400">
+                  <%=  @preregistrations.where(user: promoter.id).length %>
+                </td>
+                <td class="py-4 px-6 text-sm text-gray-500 dark:text-gray-400">
+                  <%= @preregistrations.where(authorized_by: promoter.id).length %>
+                </td>
+                <td class="py-4 px-6 text-sm text-gray-500 dark:text-gray-400">
+                  <%= @preregistrations.where.not(user: promoter.id).and(@preregistrations.where(authorized_by: promoter.id)).length %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
