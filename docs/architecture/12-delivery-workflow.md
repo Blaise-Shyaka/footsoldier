@@ -1,8 +1,8 @@
-# 12 — Delivery workflow (proposal)
+# 12 — Delivery workflow
 
-> **Status: draft for agreement.** These conventions become rules in `CLAUDE.md` once agreed.
-> They must also be reconciled with the existing local skills on writing for humans and for
-> agents, which take precedence where they differ.
+> **Status: agreed 2026-11-09.** Agents follow the summary in [`CLAUDE.md`](../../CLAUDE.md).
+> Where these rules and the local writing skills (`writing-for-people`,
+> `writing-for-people-and-agents`, `writing-for-agents`) differ, the skills win.
 
 ## Flow
 
@@ -19,7 +19,9 @@ flowchart LR
 
 - A **task** is the unit of work for an agent: small enough for one PR (aim < ~400 changed lines
   excluding generated files), with its own tests.
-- An agent picks a task, works on a branch, opens a PR, and stops. **A person merges.**
+- An agent picks a task, works on its own branch, commits and pushes there following the
+  conventions below, opens a PR, and stops. **A person reviews and merges**; agents never push
+  to the trunk and never merge.
 - If a task reveals that the architecture is wrong, the agent proposes an ADR change in its own
   PR rather than silently diverging.
 
@@ -29,8 +31,10 @@ flowchart LR
   E0.1 it is fast-forwarded to `develop`, made the default branch and protected; `develop` is
   then deleted. The `legacy-v1` tag marks the old app. The other remote branches (`homepage`,
   `rg-data`) are deleted once checked for unmerged work.
+- PRs target the trunk. Until E0.1 switches it to `main`, that is `develop`.
 - Branch name: `<type>/<issue-number>-<short-slug>`, e.g. `feat/42-form-version-publishing`,
-  `fix/77-duplicate-submission-409`, `docs/12-sync-adr`.
+  `fix/77-duplicate-submission-409`, `docs/12-sync-adr`. Until the Phase 0 epics exist as
+  GitHub issues, work without an issue uses `<type>/<short-slug>`, e.g. `docs/architecture-v0.3`.
 - Types: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`, `ci`, `perf`.
 
 ## Commits
@@ -47,7 +51,9 @@ Refs #<issue>
 ```
 
 - `<module>` is one of the modules in [02](02-system-overview.md) (`forms`, `submissions`,
-  `sync`, `tenancy`…) or `mobile`, `deploy`, `docs`.
+  `sync`, `tenancy`…) or `mobile`, `deploy`, `docs`. A change that only touches documentation
+  uses `docs(docs)`; a documentation change about one module may use that module.
+- `Refs #<issue>` only when an issue exists.
 - One logical change per commit; tests in the same commit as the code they cover.
 - **No AI co-author or attribution trailers** (no `Co-Authored-By: Claude…`, no
   "Generated with" lines) in commits, PRs or issues. *Revised:* enforce it in tooling rather
@@ -75,7 +81,9 @@ Labels: `type:epic|story|task|bug`, `module:<name>`, `phase:0..4`, `priority:p0.
 
 ## Pull requests
 
-Template (`.github/pull_request_template.md`):
+The description follows the local `writing-for-people-and-agents` skill: the sections below
+are for people, and details only an agent needs go in collapsed `<details>` sections.
+`Closes #<task>` only when an issue exists. Template (`.github/pull_request_template.md`):
 
 ```
 ## What
