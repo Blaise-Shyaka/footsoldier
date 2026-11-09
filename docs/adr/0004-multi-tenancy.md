@@ -19,7 +19,29 @@ them small.
   session setting (`app.agency_id`). The app runs as a non-`BYPASSRLS` role; the setting is
   applied per request and per job when a connection is checked out and reset on check-in;
   migrations and platform-level jobs use a separate privileged role.
-- CI enforces: tenant table ⇒ `agency_id` + index + RLS policy + isolation tests.
+- *Revised — mechanism details, each of which is a silent failure if omitted:*
+  - Policies read the setting as `NULLIF(current_setting('app.agency_id', true), '')::bigint`.
+    The plain form raises an error when the setting is absent instead of returning no rows.
+  - Every tenant table has `FORCE ROW LEVEL SECURITY`. Table owners bypass RLS otherwise, and
+    the Rails test database is owned by the test role, so isolation tests would pass with RLS
+    doing nothing. Tests run as a non-owner role.
+  - The setting is applied in a **connection-pool checkout hook** driven by `Current`, not by
+    request middleware alone: any second connection (`load_async`, a second database, a job
+    run inline) would otherwise have no setting and return zero rows. `load_async` is
+    disallowed until the hook exists.
+  - **No transaction-mode pooler** (PgBouncer in transaction mode) in front of the app role:
+    session `SET` would leak between clients. If one is ever needed, switch to `SET LOCAL`
+    inside an explicit transaction per request.
+  - Queries that legitimately run **before a tenant is chosen** (a user's own memberships for
+    the agency switcher, invitation token lookup, device login) get explicit user-keyed
+    policies (`user_id = current_setting('app.user_id', true)::bigint`), never `BYPASSRLS`.
+  - **Composite foreign keys** on child tables, e.g.
+    `(agency_id, project_id) REFERENCES projects (agency_id, id)`, so a denormalized
+    `agency_id` can never disagree with its parent row.
+  - **Support access grants** run through the normal RLS role with `app.agency_id` set to the
+    granted agency, so support reads keep both safeguards.
+- CI enforces: tenant table ⇒ `agency_id` + index + RLS policy (forced) + composite FK to its
+  parent + isolation tests.
 
 ## Consequences
 

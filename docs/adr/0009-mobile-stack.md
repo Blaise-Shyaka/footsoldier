@@ -25,6 +25,10 @@ used by the web.
   self-hosted update server.
 - Performance on very low-end devices needs active care (list virtualization, image handling,
   avoiding heavy re-renders) and testing on real hardware.
+- *Revised:* background sync on iOS is best-effort (the OS schedules it opportunistically);
+  the design relies on sync at app foreground, on connectivity regained and on demand.
+- *Revised:* Expo exposes no stable hardware id; `device_id` is a UUID generated at first
+  launch and kept in the secure store.
 
 ## Alternatives considered
 

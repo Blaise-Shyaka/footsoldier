@@ -29,6 +29,10 @@
       ], "required": true },
     { "key": "why_not", "type": "text", "label": { "en": "Why not accepted?" },
       "visible_if": { "==": [ { "var": "upi_accepted" }, "no" ] }, "required": true },
+    { "key": "district", "type": "select_one", "label": { "en": "District" },
+      "choices_from": "rw_admin_units", "level": "district" },
+    { "key": "sector", "type": "select_one", "label": { "en": "Sector" },
+      "choices_from": "rw_admin_units", "level": "sector", "cascade_from": "district" },
     { "key": "tests", "type": "group", "repeat": { "min": 0, "max": 3 },
       "label": { "en": "Payment tests" },
       "fields": [
@@ -48,8 +52,11 @@
 `time`, `datetime`, `phone`, `email`, `geopoint`, `photo`, `group` (optionally `repeat`),
 `note` (display only), `calculated` (JSONLogic expression, stored).
 
-Later: `signature`, `barcode`, `audio`, `geotrace`/`geoshape`, `rating`, `matrix`, cascading
-selects from a shared option list, file upload.
+*Revised:* `select_one`/`select_many` may take options from a shared **choice list**
+(`choices_from`) and cascade on another field (`cascade_from`) in v1 — every Rwandan address
+needs it, and the legacy forms prove it.
+
+Later: `signature`, `barcode`, `audio`, `geotrace`/`geoshape`, `rating`, `matrix`, file upload.
 
 ### Field attributes
 
@@ -63,6 +70,19 @@ selects from a shared option list, file upload.
 | `pii` / `sensitive` | Privacy classification; drives client visibility defaults, exports, retention ([07](07-security-privacy-residency.md)). |
 | `unique_within` | `project` → duplicates are flagged (legacy: unique national ID). |
 | `client_visible` | Default for the client view; the agency can override per project. |
+| `respondent_identifier` | Marks fields (phone, national ID) used to find a respondent's records for follow-up or data-subject requests. |
+
+### Logic expressions (JSONLogic, as constrained by the spec)
+
+*Revised* ([ADR-0006](../adr/0006-shared-form-logic.md)):
+
+- **Operators** are an allowlist; `==` is strict (no coercion); anything outside the list
+  fails spec validation.
+- **Custom operators** (implemented in both runtimes, covered by conformance vectors):
+  `date_diff(a, b, unit)`, `today()`, `matches(string, regex)` with an RE2-safe regex subset,
+  and `count`, `sum`, `any`, `all` over a repeat group.
+- **Scoping:** inside a repeat, `{"var": "result"}` refers to the current instance;
+  `{"var": "/merchant_name"}` addresses the root; `{"var": "$index"}` is the instance index.
 
 ### Spec evolution
 
@@ -71,6 +91,10 @@ selects from a shared option list, file upload.
   app version can't render (`min_app_version` is computed per form version).
 - Adding field types is a minor spec change; changing semantics of an existing construct is a
   major one.
+- *Revised — publish-time lints across versions of one form:* a key's **type never changes**
+  (use a new key); option **`value`s are stable** (labels may change, values may be added or
+  retired); removing a key is allowed and leaves historical data queryable. Dashboards take
+  labels from the latest published version that still carries the key or value.
 
 ## Form lifecycle
 
@@ -102,9 +126,8 @@ stateDiagram-v2
 stateDiagram-v2
   direction LR
   [*] --> Received: PUT accepted (raw payload stored)
-  Received --> Complete: all attachments uploaded
-  Received --> Received: attachment arrives
-  Complete --> Processed: validated + projected + flags computed
+  Received --> Processed: job runs at once - validated + projected + flags (attachments_pending if any)
+  Processed --> Processed: attachment arrives - last one clears the flag and re-projects
   state review <<choice>>
   Processed --> review
   review --> Accepted: auto (review_mode none) or reviewer
@@ -114,23 +137,27 @@ stateDiagram-v2
   Accepted --> Rejected: reviewer (audited)
 ```
 
-Two separate columns: `state` (pipeline: received → complete → processed) and
-`review_status` (pending / accepted / flagged / rejected). Reporting counts **accepted**
-submissions by default, with a toggle to include pending.
+Two separate columns: `state` (pipeline: received → processed) and `review_status`
+(pending / accepted / flagged / rejected), plus `attachments_complete` (boolean).
+*Revised:* processing no longer waits for attachments — on 2G photos can trail answers by
+hours, and the dashboard target is 60 s. Reporting counts **accepted** submissions by
+default, with a toggle to include pending.
 
 ### What a submission stores
 
 | Group | Fields |
 |-------|--------|
-| Identity | `id` (UUIDv7 from device), `agency_id`, `project_id`, `form_version_id`, `membership_id`, `device_id` |
+| Identity | `id` (UUIDv7 from device), `agency_id`, `project_id`, `form_version_id`, `membership_id`, `device_id`, `kind`, `parent_submission_id` |
 | Content | `answers` (jsonb exactly as captured), `payload_sha256`, `attachment_manifest` |
 | Time | `started_at`, `captured_at` (device clock), `received_at` (server), `clock_skew_s` (from sync handshake) |
 | Location | `location` (PostGIS-free: `lat`, `lng` numeric + `accuracy_m`, `altitude_m`, `fix_at`, `provider`, `is_mocked`) |
 | Source | `channel` (`web`/`android`/`ios`/`legacy_import`), `app_version` |
 | Status | `state`, `review_status`, `flags` (jsonb array of `{code, detail}`) |
 
-Answers are never edited. A later **Correction** record changes what reports show while
-keeping the original answer and who changed it.
+Answers are never edited. *Revised:* a **Correction** (a submission of kind `correction`
+with `parent_submission_id`, holding only the changed keys, with author and reason) changes
+what reports show while keeping the original. Available to reviewers from Phase 1, because
+the legacy app's `edited_by` column shows the need arose in the first campaign.
 
 ### Quality flags (data accuracy)
 
@@ -145,6 +172,8 @@ Computed in the processing job; each is a rule with a code, so new rules are che
 | `duplicate_value` | `unique_within: project` field collides with an existing submission |
 | `late_after_revocation` | Captured before but received after assignment revocation |
 | `clock_suspect` | Device clock skew above threshold |
+| `attachments_pending` | *Revised:* answers processed, one or more attachments not yet received |
+| `id_conflict` | *Revised:* a later `PUT` with this id carried a different checksum; the payload is in `submission_conflicts` |
 
 Flags inform review; they never delete data.
 
@@ -163,6 +192,8 @@ Flags inform review; they never delete data.
 - Photos are compressed on device (long edge ≤ 1600 px, JPEG quality ~70, EXIF GPS stripped
   unless the project wants it) before entering the outbox — typically 200–500 KB.
 - Each attachment has a device-generated UUID and SHA-256; upload is an idempotent
-  `PUT` ([05](05-mobile-and-offline-sync.md)).
+  `PUT` ([05](05-mobile-and-offline-sync.md)). *Revised:* the endpoint reserves
+  `Content-Range` on `PUT` and a `HEAD` that reports bytes received, so resumable upload can
+  be added later without a new API version.
 - Stored via Active Storage on the cell's object store; served to browsers through
   short-lived signed URLs, never public.

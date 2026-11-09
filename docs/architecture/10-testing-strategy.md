@@ -22,13 +22,26 @@ runs on.
 1. **Tenant isolation suite.** Two agencies with full data sets. For every tenant model: queries
    under agency A never return B's rows (app scope *and* RLS with app scope deliberately
    bypassed). For every route: A's user gets 404 for B's resources. A schema lint test fails if
-   a table with `agency_id` lacks an index or RLS policy.
+   a table with `agency_id` lacks an index, a forced RLS policy or a composite FK to its parent.
+   *Revised:* the suite connects as a **non-owner database role** (owners bypass RLS) and
+   includes a canary test that proves RLS is active: a raw `SELECT` with no `app.agency_id`
+   set must return zero rows. It also covers the pre-tenant paths (agency switcher,
+   invitation lookup, device login) and a `load_async` query.
 2. **Idempotency suite.** Every device write endpoint called twice, concurrently and in
-   sequence, with identical and conflicting payloads → exactly one record, correct status codes.
+   sequence, with identical and conflicting payloads → exactly one record, correct status codes,
+   conflicting payload quarantined. *Revised:* plus a **cursor-ordering test**: N concurrent
+   writers append `sync_events` while a reader polls; the reader must see every event exactly
+   once.
 3. **Client visibility suite.** For each client view setting, hidden fields/locations/names never
    appear in client HTML, JSON, or export files.
 4. **Never-lose-data suite.** Submissions that fail validation, arrive after revocation, reference
-   retired versions, or carry bad clocks are stored and flagged — never rejected.
+   retired versions, or carry bad clocks are stored and flagged — never rejected. *Revised:* a
+   `draining` session can upload pre-removal captures and nothing else; a hard-revoked one
+   gets `401 {reason: "revoked"}`; a `409` leaves the payload in `submission_conflicts`;
+   processing and projection complete with attachments still missing.
+5. **Web filler resilience.** *Revised:* a system test fills a form, kills the connection on
+   submit, reloads, and asserts the draft is restored and the retried submit produces exactly
+   one submission.
 
 ## Shared form runtime conformance
 
@@ -39,6 +52,9 @@ The Ruby runtime (server) and the TypeScript runtime (web + mobile) must agree e
 - Both runtimes run the same vectors in CI. A change to either runtime without a passing vector
   run fails the build.
 - Every bug found in form logic adds a vector first.
+- *Revised:* vectors cover every custom operator (`date_diff`, `today`, `matches`, repeat
+  aggregates), the repeat scoping rules, strict equality, and one vector per lint
+  (type change, option value change) that the publisher must reject.
 
 ## Mobile
 

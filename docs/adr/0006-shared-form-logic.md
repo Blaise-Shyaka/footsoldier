@@ -19,6 +19,17 @@ disagree, either the footsoldier is blocked wrongly or bad data is accepted sile
   - Ruby (inside the Rails app), used for server-side validation and flags.
 - Maintain **conformance test vectors** in `packages/form-spec/conformance`, executed against
   both runtimes in CI. Restrict operators to an allowlisted subset we test.
+- *Revised:* plain JSONLogic lacks date arithmetic, regex and a rule for referencing fields
+  inside a repeat instance, and implementations disagree on truthiness and loose equality.
+  The spec therefore defines:
+  - the **operator allowlist** (`==` is strict; `===`/`!=`/`!==`, `and`, `or`, `!`, `if`,
+    comparisons, arithmetic, `in`, `cat`, `var`, `missing`, `merge`, `map`/`filter`/`reduce`);
+  - **custom operators** implemented in both runtimes: `date_diff(a, b, unit)`, `today()`,
+    `matches(str, regex)` (RE2-safe subset), and `count`/`sum`/`any`/`all` over a repeat group;
+  - **`var` scoping:** inside a repeat, `var` resolves relative to the current instance;
+    a leading `/` addresses the root (`{"var": "/merchant_name"}`); `$index` is the current
+    repeat index.
+  Every custom operator and scoping rule has conformance vectors before it is used in a form.
 
 ## Consequences
 

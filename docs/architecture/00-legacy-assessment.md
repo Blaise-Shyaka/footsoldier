@@ -14,7 +14,9 @@ Snapshot of `develop` at `752a5de` (last commit 2022-08-24, 146 commits).
 | Exports | Per-model `to_csv` with hard-coded column lists |
 | Tenancy | None. All data in one namespace; any client flag sees all rows of its campaign |
 | Tests | Rails scaffold tests only (system tests reference fields that do not match the UI) |
-| Deployment | No deployment config in the repo; production DB credentials via env var |
+| Deployment | No deployment config in the repo; production DB credentials via env var. *Revised:* `production.rb` names `rgdata.rw` as the mail host, so the app was deployed; mail went through Gmail (outside the country); **the mail username and password are literal strings in that file, committed 2022-08-11 — rotate them before anything else** |
+| Onboarding | *Revised:* anyone can self-register (Devise `:registerable`); roles are then granted by posting a form with a shared `admin_secret_key` from the environment — no record of who granted what |
+| Post-capture edits | *Revised:* UnionPay tables carry `edited_by`; the promoter index hides edited rows. Editing after capture by another person was needed in the first campaign |
 
 ## What it proves
 
@@ -23,10 +25,17 @@ The legacy app is a useful **requirements artefact**. It shows, from real campai
 - Forms mix free text, single choice, multi-select (`merchant_has_multiple_acquirers`),
   conditional follow-ups (`why_upi_not_accepted` only when not accepted), and repeated
   blocks (contactless / chip / swipe test scenarios share the same five questions).
-- Records sometimes need a **second step by a different role** (BK Arena: agent
-  pre-registers a customer; branch admin later issues a card against the record).
+- Records sometimes need a **second step by a different role** (BK Arena: a promoter
+  pre-registers a customer; a user flagged `is_bk_arena_agent` later searches the record by
+  ID number or phone and issues a card against it). This was the most recent campaign.
 - Clients want **percent breakdowns by answer**, **breakdowns by code**, **per-promoter
-  performance** and **CSV export**.
+  performance**, **sums of a numeric answer per day and per promoter** (Engen `fueled_value`)
+  and **CSV export**.
+- *Revised:* forms need **shared and cascading option lists**: the BK Arena form has the full
+  Rwandan province → district → sector → cell → village hierarchy, and the UnionPay form
+  repeats one hard-coded acquirer list in five fields.
+- *Revised:* every legacy user has a required phone number; field agents are the primary
+  users. Email-only identity would exclude many of them.
 - Uniqueness rules on an answer matter (unique `id_number`) — i.e. *deduplication* is a
   data-quality feature.
 - Personal and sensitive data is collected (national ID numbers, phone numbers, partial
@@ -57,7 +66,14 @@ in this repository and retire the legacy code.
 | Per-campaign hard-coded forms | Form builder + versioned form definitions |
 | `why_*_not_accepted` follow-ups | Conditional visibility (skip logic) |
 | contactless/chip/swipe blocks | Field groups, optionally repeatable |
-| Card issuance after pre-registration | Multi-stage submissions / follow-up tasks (later phase) |
+| Card issuance after pre-registration | Follow-up submissions (`parent_submission_id`) — schema in Phase 1, UX in Phase 3 |
+| `edited_by` on UnionPay records | Corrections inside the review flow (Phase 1), originals kept |
+| Province/district/sector/cell/village; acquirer lists | Shared, cascading choice lists (Phase 1) |
+| Sales per day / per promoter (`sum(fueled_value)`) | Numeric aggregates on widgets |
+| Search by ID number or phone | Lookup by `respondent_identifier` fields within a project |
+| `admin_secret_key` role grants | Invitations with roles, granted by an identified admin, audited |
+| Self-registration | Invitation-only accounts |
+| Required phone number on every user | Email-or-phone identity ([ADR-0011](../adr/0011-user-identity-email-or-phone.md)) |
 | Unique ID number | Field-level uniqueness rule within a project → flag duplicates |
 | Promoter performance report | Per-footsoldier stats in agency dashboard |
 | % breakdown / code breakdown reports | Dashboard widgets over the reporting projection |

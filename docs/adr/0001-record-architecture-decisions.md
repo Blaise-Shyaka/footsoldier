@@ -20,8 +20,9 @@ working on a module and to propose a new ADR rather than diverge from an accepte
 ## Consequences
 
 - Decisions are reviewable in PRs like code.
-- Small decisions not worth an ADR go to `.agents/decisions-log.md` and are promoted if they
-  turn out to matter.
+- Small decisions not worth an ADR go to `.agents/decisions-log.md` (committed, see
+  [12](../architecture/12-delivery-workflow.md)) and are promoted if they turn out to
+  matter.
 
 ## Alternatives considered
 

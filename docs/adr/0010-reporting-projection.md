@@ -13,6 +13,11 @@ arbitrary fields; adding a BI/OLAP system would add heavy components to every ce
 
 - After processing, each submission is projected into `submission_values`: one typed row per
   answered field (one per selected option for multi-selects; with `repeat_index` for repeats).
+  *Revised:* processing runs when the **answers** are received, not when the last attachment
+  arrives; attachment completeness is a flag, so photos trailing on 2G never delay dashboards.
+- *Revised:* `submissions`, `submission_values` and `audit_events` are **partitioned by month
+  from the first migration**. Widgets support `count`, `sum`, `avg`, `min`, `max` over a
+  numeric field, not only counts.
 - Dashboards and exports query the projection, always through `Reporting` query objects that
   apply tenant and client-view rules.
 - The projection is **derivable**: it can be rebuilt from `submissions` at any time.
@@ -23,8 +28,10 @@ arbitrary fields; adding a BI/OLAP system would add heavy components to every ce
 ## Consequences
 
 - Fast, indexable aggregations with plain SQL; no new infrastructure.
-- Write amplification (≈ one row per answer) — acceptable at assumed volumes; partition by
-  month if it grows.
+- Write amplification (≈ one row per answer). At the planning peak in
+  [01](../architecture/01-context-and-goals.md) (100k submissions/day) that is about
+  2M rows/day; at the 500k/day ceiling it is 10M rows and ~1 GB per day, which is why
+  partitioning is done at creation rather than "if it grows".
 - Agency-defined dashboards are limited to the widget types we build.
 
 ## Alternatives considered

@@ -8,11 +8,28 @@ A cross-tenant leak would end the product, so isolation is enforced twice
 1. **Application layer.** Tenant models include `Tenancy::Scoped`, which requires
    `Current.agency` and applies `where(agency_id: Current.agency.id)`. Accessing a tenant model
    without a tenant context raises (except in explicitly marked platform/maintenance code).
-2. **Database layer.** PostgreSQL row-level security policies on every tenant table:
-   `USING (agency_id = current_setting('app.agency_id')::bigint)`. The app connects as a role
-   that is subject to RLS; each request/job sets `app.agency_id` when it checks out a
-   connection and resets it on check-in (with no setting, policies return no rows — fail
-   closed). Migrations and platform jobs use a separate role with `BYPASSRLS`.
+2. **Database layer.** PostgreSQL row-level security policies on every tenant table.
+   *Revised* — the mechanism, because each omission is a silent failure
+   ([ADR-0004](../adr/0004-multi-tenancy.md)):
+   - Policy: `USING (agency_id = NULLIF(current_setting('app.agency_id', true), '')::bigint)`.
+     The plain `current_setting(...)::bigint` raises when the setting is absent instead of
+     returning no rows.
+   - `ALTER TABLE … FORCE ROW LEVEL SECURITY` on every tenant table. Owners bypass RLS
+     otherwise, and the test database is owned by the test role, so isolation tests would
+     pass vacuously. Tests connect as a non-owner role.
+   - The setting is applied in a **connection-pool checkout hook** from `Current` and
+     cleared on check-in; any connection without it sees no rows (fail closed). `load_async`
+     and any second connection in a request are covered by the same hook, and `load_async`
+     stays disabled until it is.
+   - **No transaction-mode pooler** in front of the app role (session `SET` would leak between
+     clients); if ever needed, switch to `SET LOCAL` per request transaction.
+   - Pre-tenant queries (a user's memberships for the agency switcher, invitation lookup,
+     device login) use **user-keyed policies** on `app.user_id`, never `BYPASSRLS`.
+   - Composite foreign keys `(agency_id, parent_id)` keep the denormalized `agency_id`
+     consistent with the parent row.
+   Migrations and platform-level maintenance use a separate role with `BYPASSRLS`; support
+   access grants do **not** — they run as the normal role with `app.agency_id` set to the
+   granted agency, so both safeguards stay on.
 
 A **tenant isolation test suite** creates two agencies and asserts, for every tenant model and
 every API/HTML endpoint, that agency B's data is unreachable with agency A's context
@@ -24,11 +41,14 @@ on it, and an RLS policy (checked by a schema lint test).
 | Who | Mechanism |
 |-----|-----------|
 | Agency & client users (web) | Rails 8 authentication generator (`has_secure_password`, DB-backed sessions), email confirmation, password reset, rate limiting on login. TOTP 2FA required for `agency_owner`/`agency_admin`, optional for others. |
-| Footsoldiers (web) | Same as above; invited by email. |
-| Footsoldiers (mobile) | Device token (256-bit random, stored as SHA-256 digest) bound to `device_id`; revocable per device; local PIN/biometric to unlock offline. |
+| Footsoldiers (web) | Same as above; invited by email link **or SMS code** ([ADR-0011](../adr/0011-user-identity-email-or-phone.md)); phone-only accounts reset passwords by SMS code. |
+| Footsoldiers (mobile) | Device token (256-bit random, stored as SHA-256 digest) bound to `device_id`; revocable per device; local PIN/biometric to unlock offline. *Revised:* states `active` → `draining` → `revoked`; a draining token can only upload captures made before removal, for 30 days. |
 | Platform staff | Separate `PlatformStaff` model and login path, mandatory 2FA, IP allowlist optional. |
 
-Sessions and device tokens are revoked when a membership is removed or a password changed.
+Web sessions are revoked when a membership is removed or a password changed. *Revised:*
+device sessions are put into `draining` on membership removal so the outbox can finish
+([05](05-mobile-and-offline-sync.md)); a password change or an explicit owner action
+hard-revokes them.
 
 ## Authorization
 
@@ -53,6 +73,13 @@ context, role, resource scope. Policy tests are mandatory for every policy.
   `answers`, `password`, tokens, and any field marked PII; error tracking runs inside the cell.
 - **Breach readiness.** Audit log + access logs make it possible to establish scope quickly;
   the incident runbook includes regulator notification timelines per jurisdiction.
+- *Revised — compliance checklist per cell.* For Rwanda, Law No. 058/2021 also expects data
+  controllers (agencies) and processors (the platform operator) to register with the NCSA and,
+  depending on scale, to designate a data protection officer; confirm the exact obligations
+  with counsel before the first production cell and record them in the cell runbook.
+- *Revised — legacy hygiene.* The legacy repository's production config contains a literal
+  mail credential (committed 2022-08-11) and the legacy app relayed mail through Gmail.
+  Rotate that credential before the repository reset; git history keeps it forever.
 
 ## Data residency
 
@@ -90,7 +117,10 @@ login/2FA events.
 ## Application security baseline
 
 - Brakeman, `bundler-audit`, `npm audit` in CI; Dependabot for Ruby, JS and GitHub Actions.
-- Rails 8 `rate_limit` on auth endpoints and the device API.
+- Rails 8 `rate_limit` on auth endpoints and the device API. *Revised:* limits on
+  authentication and `GET` endpoints are strict; `PUT` submissions and attachments are limited
+  **per device** at a rate far above any honest outbox (e.g. 600/min) and only alert below an
+  abuse threshold, so a footsoldier draining a day's work is never blocked.
 - Strict CSP; signed and expiring URLs for every file; no public buckets.
 - Uploaded files: content-type sniffing, size limits, image re-encoding (strips payloads).
 - Secrets via Kamal secrets / environment, never in the repo; `config/master.key` per cell.

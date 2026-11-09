@@ -81,10 +81,10 @@ flowchart LR
 
 | Module | Owns | Notes |
 |--------|------|-------|
-| `Identity` | users, sessions, device sessions, invitations, 2FA | Global within a cell |
+| `Identity` | users (email or phone), sessions, device sessions, invitations, 2FA, SMS provider adapter | Global within a cell |
 | `Tenancy` | agencies, clients, memberships, `Current` tenant context, RLS helpers | The tenant boundary |
 | `Projects` | projects, assignments | Activation, revocation |
-| `Forms` | forms, form versions, form spec validation, builder | Pure data + Ruby form runtime |
+| `Forms` | forms, form versions, choice lists, form spec validation, builder | Pure data + Ruby form runtime |
 | `Submissions` | submissions, attachments, reviews, quality flags | Write path, append-only |
 | `Sync` | API v1 controllers for devices, sync cursors | Thin layer over Projects/Forms/Submissions |
 | `Reporting` | answer projection, dashboards, widgets, exports, client view config | Read path |
@@ -126,10 +126,12 @@ Rails stays at the repository root so Rails and Kamal conventions work without c
 footsoldiers → devices fetch the new version on next sync.
 
 **Footsoldier submits** → device writes to its SQLite outbox → `PUT /api/v1/submissions/:id`
-(idempotent) → `Submissions` stores the raw payload → attachments upload separately → once
-complete, a job validates with the Ruby runtime, records quality flags, writes the reporting
-projection and creates earnings entries if enabled → Turbo Stream broadcast refreshes
-dashboards.
+(idempotent) → `Submissions` stores the raw payload → *Revised:* a job **immediately**
+validates with the Ruby runtime, records quality flags (including `attachments_pending`),
+writes the reporting projection and creates earnings entries if enabled → Turbo Stream
+broadcast refreshes dashboards → attachments upload separately; when the last one lands the
+flag is cleared and the submission is re-projected. Photos trailing on 2G never delay the
+dashboard.
 
 **Client opens dashboard** → `Reporting` resolves the client view config for that project
 → queries the projection with only client-visible fields → renders widgets with the

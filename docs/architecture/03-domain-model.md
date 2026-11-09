@@ -32,12 +32,12 @@ erDiagram
 
 | Entity | Key fields | Notes |
 |--------|-----------|-------|
-| `User` | email (unique, citext), name, phone, password_digest, confirmed_at, locale, otp_secret | One identity per person per cell. Not tenant-scoped. |
+| `User` | email (citext, nullable, unique), phone (E.164, nullable, unique), name, password_digest, confirmed_at, locale, otp_secret | One identity per person per cell; at least one of email/phone. Not tenant-scoped. *Revised:* [ADR-0011](../adr/0011-user-identity-email-or-phone.md). |
 | `Agency` | slug, name, status (`active`/`suspended`), data_region | **The tenant root.** |
 | `Client` | agency_id, name, status | Belongs to exactly one agency. A real-world organization served by two agencies is two `Client` records (isolation over convenience — see open question 2). |
-| `Membership` | agency_id, user_id, client_id (nullable), role, status, invited_by | A user's role in one agency. Client users have `client_id` set. A user can hold memberships in several agencies. |
-| `Invitation` | agency_id, email, role, client_id, token_digest, expires_at, accepted_at | Email link → set password / confirm → membership activated. |
-| `DeviceSession` | user_id, device_id, token_digest, platform, app_version, last_seen_at, revoked_at | Long-lived, revocable API token per device. |
+| `Membership` | agency_id, user_id, client_id (nullable), role, status, invited_by | A user's role in one agency. Client users have `client_id` set. A user can hold memberships in several agencies. *Revised:* unique on `(agency_id, user_id, client_id)`. |
+| `Invitation` | agency_id, email **or phone**, role, client_id, token_digest, expires_at, accepted_at | Email link or SMS code → set password / confirm → membership activated. |
+| `DeviceSession` | user_id, device_id, token_digest, platform, app_version, last_seen_at, `state` (`active`/`draining`/`revoked`), revoked_at, drain_until | Long-lived, revocable API token per device. *Revised:* `draining` lets a removed member's outbox finish uploading ([05](05-mobile-and-offline-sync.md)). Belongs to the user, not to one agency. |
 | `PlatformStaff` | email, password_digest, otp_secret, role | **Separate table and login** from tenant users. |
 
 Roles on `Membership`:
@@ -71,13 +71,15 @@ Detailed in [04](04-forms-and-submissions.md). Summary:
 
 | Entity | Notes |
 |--------|-------|
-| `Form` | Belongs to a project; has a stable `key`. |
+| `ChoiceList` | *Revised:* agency-owned (or platform-provided) named option list, versioned; supports hierarchies (`parent_value`) for cascading selects such as Rwanda's administrative units. Referenced by `choices_from`. |
+| `Form` | Belongs to a project; has a stable `key`. Can be duplicated into another project. |
 | `FormVersion` | `definition` (jsonb), `version` (int), `status` (`draft`/`published`/`retired`), `checksum`. Published = immutable. |
-| `Submission` | Client-generated UUIDv7 id; `answers` (jsonb, as captured); device/timing/location metadata; `state` and `review_status`. Never updated in place except status columns. |
+| `Submission` | Client-generated UUIDv7 id; `answers` (jsonb, as captured); device/timing/location metadata; `state` and `review_status`. Never updated in place except status columns. *Revised:* `kind` (`capture`/`follow_up`/`correction`) and nullable `parent_submission_id` from Phase 1, so follow-up records and corrections need no later migration. Partitioned by month. |
+| `SubmissionConflict` | *Revised:* quarantined payload received with an existing id but a different checksum; visible to agency admins and support, never reported. |
 | `Attachment` | Client-generated UUID; belongs to submission + field key; Active Storage blob; checksum. |
 | `SubmissionValue` | Typed projection row per answered field (for analytics). Rebuildable. |
 | `ReviewEvent` | Append-only: accepted / flagged / rejected / note, by whom, why. |
-| `Correction` | Later phase: agency-made correction to one answer, keeping original. |
+| `Correction` | *Revised, Phase 1:* a `Submission` of kind `correction` whose `answers` hold only the changed keys, authored by the reviewer, with a reason. Reports read the latest correction over the original; the original is never modified. |
 
 ### Every tenant-owned table has `agency_id`
 
@@ -87,6 +89,12 @@ and makes PostgreSQL row-level security possible ([ADR-0004](../adr/0004-multi-t
 
 Primary keys: `bigint` for server-created rows; **UUIDv7** for anything a device creates
 (submissions, attachments), so ids can be generated offline and still sort by time.
+
+*Revised:* child tables carry **composite foreign keys** to their parent,
+`(agency_id, project_id) REFERENCES projects (agency_id, id)`, so the denormalized
+`agency_id` can never disagree with the parent's. Pre-tenant queries (a user's own
+memberships, invitation lookup, device login) have explicit user-keyed RLS policies rather
+than bypassing RLS ([ADR-0004](../adr/0004-multi-tenancy.md)).
 
 ## Authorization
 
@@ -124,7 +132,10 @@ Authorization has three layers, all of which must pass:
   *before* `revoked_at` (by device capture time, with clock-skew tolerance) are still
   accepted — and flagged for review if they arrive after revocation.
 - **Pausing a project** blocks new captures; in-flight data is still accepted.
-- **Removing a member** deactivates the membership and revokes their device sessions;
-  their submissions stay, attributed to them.
+- **Removing a member** deactivates the membership and puts their device sessions into
+  `draining` for 30 days: the device may still upload captures made before the removal and
+  nothing else ([05](05-mobile-and-offline-sync.md)). Their submissions stay, attributed to
+  them. An owner may **hard-revoke** instead (audited; the UI warns that unsynced captures
+  will be lost).
 - **Deleting is rare and explicit.** Only `agency_owner` can delete a project's data, through
   an audited, delayed (soft → hard after N days) process.

@@ -1,7 +1,15 @@
 # Footsoldier — Architecture
 
-Status: **Proposed** (v0.1, 2026-11-06). Nothing here is final until the decisions in
+Status: **Proposed** (v0.2, revised 2026-11-07). Nothing here is final until the decisions in
 [`docs/adr`](../adr) are marked *Accepted*.
+
+> **v0.2** applies the findings in [`docs/review-findings.md`](../review-findings.md).
+> Paragraphs that changed are marked *Revised*. The main changes: a gap-free sync cursor,
+> processing on receipt instead of after attachments, quarantine for checksum conflicts,
+> draining device sessions for removed members, a realistic sizing assumption with
+> partitioning from day one, the concrete RLS mechanism, email-or-phone identity
+> ([ADR-0011](../adr/0011-user-identity-email-or-phone.md)), and corrections, choice
+> lists and numeric aggregates pulled forward into Phase 1.
 
 Footsoldier is a multi-tenant SaaS for field data collection. Agencies design forms,
 recruit and assign field agents ("footsoldiers"), and present the collected data to the
@@ -49,7 +57,8 @@ Architecture Decision Records live in [`docs/adr`](../adr/README.md).
   TypeScript (web + mobile) implementations. ([ADR-0006](../adr/0006-shared-form-logic.md))
 - **Sync is idempotent and append-only.** Devices create submissions with their own
   UUIDv7 ids; uploads can be retried any number of times; the server never rejects field
-  data it can authenticate — it accepts and flags it.
+  data it can authenticate — it accepts and flags it, quarantines what conflicts, and keeps
+  accepting from removed members until their outbox has drained.
   ([ADR-0007](../adr/0007-offline-sync-protocol.md))
 - **Mobile is React Native (Expo) with SQLite**, offline-first, built after the web MVP
   but against the same API the web form filler already uses.
@@ -71,7 +80,14 @@ These change scope or sequencing; see each linked document for the trade-offs.
    agency, one user identity*. ([03](03-domain-model.md))
 3. Mobile stack: React Native is proposed mainly to share TypeScript form logic with the
    web. If the team has stronger Flutter/Dart skills, revisit [ADR-0009](../adr/0009-mobile-stack.md).
-4. Should footsoldiers be able to log in with phone number + SMS code as well as email?
-   The brief says email invitations; many field agents may use phone numbers primarily.
+4. *Revised:* identity by email **or** phone number is now the proposal
+   ([ADR-0011](../adr/0011-user-identity-email-or-phone.md)); the legacy app required
+   a phone number for every user. The remaining question is which in-country SMS provider to
+   use for the first cell, and whether SMS cost is acceptable per invitation.
+6. Do footsoldiers work for more than one agency at a time, and do agencies share phones
+   between agents? Both are now designed for in [05](05-mobile-and-offline-sync.md), but the
+   shared-phone rule in v1 is restrictive (one account per phone at a time).
+7. The legacy production config contains a literal mail credential. Who can rotate it, and
+   is `rgdata.rw` still serving the legacy app? ([00](00-legacy-assessment.md))
 5. Branching: `develop` is the current default and `main` is stale. Proposal: single trunk
    `main`. ([12](12-delivery-workflow.md))

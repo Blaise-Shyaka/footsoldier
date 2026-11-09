@@ -13,8 +13,9 @@ client — it does not change the server.
 3. **Submissions are append-only.** One author, one device → no merge conflicts to resolve.
 4. **The server accepts what it can authenticate.** Validation problems become flags
    ([04](04-forms-and-submissions.md)); only authentication/authorization failures are refused.
-5. **Never block uploading.** Forced app updates, expired projects or revoked assignments must
-   still let the outbox drain first.
+5. **Never block uploading.** Forced app updates, expired projects, revoked assignments and
+   *removed memberships* must still let the outbox drain first. *Revised:* this is what the
+   `draining` device-session state is for; rate limits never reject honest `PUT`s.
 6. **Assume bad clocks and bad networks.** Record device, server and GPS time; use small
    payloads, gzip, exponential backoff with jitter.
 
@@ -63,7 +64,7 @@ flowchart TB
 | `drafts` | In-progress captures, pinned to a form version |
 | `outbox_submissions` | Finished captures: payload, checksum, `sync_state`, attempts, last_error |
 | `outbox_attachments` | File path, checksum, size, `sync_state` |
-| `sync_meta` | Cursor, last successful sync, server clock offset, min app version |
+| `sync_meta` | Cursor **per agency**, last successful sync, server clock offset, min app version |
 
 `sync_state`: `queued` → `uploading` → `acknowledged` → (all attachments acknowledged) →
 `done`. `done` rows are kept for N days (configurable) for the footsoldier's history, then
@@ -77,6 +78,20 @@ pruned.
   shared or lost phone. Revoking the device session server-side takes effect on next contact;
   pending data is still uploaded before the local session is wiped.
 - Invitation links carry the cell base URL, so the app knows which regional cell to talk to.
+- *Revised:* `device_id` is a UUID generated at first launch and kept in the secure store
+  (Expo exposes no stable hardware id).
+- *Revised — multiple agencies:* a device session belongs to the user. `GET /sync` returns
+  changes for **every active footsoldier membership**, with one cursor per agency; projects
+  are grouped by agency in the UI; each outbox row carries its `agency_id`.
+- *Revised — shared phones:* v1 holds **one account per device at a time**. Switching
+  accounts requires an empty outbox and connectivity, and the app says so. Multi-profile
+  local storage (separate encrypted outboxes per user) is a later feature. Agencies that share
+  phones must plan a sync before each handover.
+- *Revised — removed members:* when a membership is removed the session becomes `draining`
+  for 30 days: `PUT` of submissions and attachments captured before `revoked_at` (plus clock
+  tolerance) still succeeds; every other call returns `401 {reason: "draining"}`. The app
+  drains, then wipes the local session. A hard revoke returns `401 {reason: "revoked"}` and
+  the app keeps the outbox read-only on the phone for support.
 
 ## Sync protocol (API v1)
 
@@ -88,18 +103,27 @@ and enforced by request tests ([10](10-testing-strategy.md)).
 |---------------|---------|-------------|
 | `POST /sessions` | Exchange credentials for a device token | — |
 | `DELETE /sessions/current` | Logout (after outbox is empty) | ✓ |
-| `GET /sync?cursor=<n>` | Delta since cursor: assignments, project status, form version refs, revocations, server time, min app version | Read |
+| `GET /sync?cursors[<agency_id>]=<n>` | Delta since cursor, per agency: assignments, project status, form version refs, revocations, choice-list versions, server time, min app version | Read |
 | `GET /form_versions/:id` | Immutable definition; `ETag` = checksum, cache forever | Read |
-| `PUT /submissions/:uuid` | Create submission | Same id + same checksum → `200`; same id + different checksum → `409` + alert |
-| `PUT /submissions/:uuid/attachments/:uuid` | Upload one file (body = bytes, `Content-SHA256` header) | Same id + same checksum → `200` |
+| `PUT /submissions/:uuid` | Create submission | Same id + same checksum → `200`; same id + different checksum → `409 {quarantined: true}` (payload stored in `submission_conflicts`) |
+| `PUT /submissions/:uuid/attachments/:uuid` | Upload one file (body = bytes, `Content-SHA256` header; `Content-Range` reserved for resumable upload later) | Same id + same checksum → `200` |
+| `HEAD /submissions/:uuid/attachments/:uuid` | Bytes received so far (reserved for resumable upload) | Read |
 | `GET /submissions?since=` | Own submission statuses (review outcome, flags) and earnings | Read |
 
 ### Sync cursor
 
-A per-agency monotonically increasing `bigint` (`sync_version`) is stamped on every row that
-devices care about (assignments, project status, form version publication). `GET /sync`
-returns changes with `sync_version > cursor` for that footsoldier, plus the new cursor. This
+*Revised.* Every change a device cares about (assignment, project status, form version
+publication, choice-list version, revocation) appends a row to `sync_events`
+(`agency_id`, `seq`, `kind`, `subject_id`, `membership_id` or null). `GET /sync` returns rows
+with `seq > cursor` for that footsoldier's memberships, plus the new cursor per agency. This
 avoids timestamp comparisons across machines with different clocks.
+
+`seq` is assigned **under a per-agency transaction-scoped advisory lock**
+(`pg_advisory_xact_lock(agency_id)`), so events become visible in `seq` order. Stamping a
+sequence value on rows at write time is not enough: with two concurrent writers, `seq` 10
+can commit after a device has already read past 11, and the device would never see 10 —
+a missed revocation or form version. The idempotency suite tests this with concurrent
+writers ([10](10-testing-strategy.md)).
 
 ### Upload sequence
 
@@ -114,21 +138,23 @@ sequenceDiagram
   D->>A: PUT /submissions/{uuid} (answers, metadata, manifest, sha256)
   A->>DB: INSERT ... ON CONFLICT (id) DO NOTHING
   alt new
+    A->>J: enqueue processing (answers only)
     A-->>D: 201 {state: received, missing_attachments: [...]}
-  else exists, same sha256
+  else exists and visible, same sha256
     A-->>D: 200 {state, missing_attachments}
-  else exists, different sha256
-    A-->>D: 409 conflict - logged and alerted, device keeps data for support
+  else exists but invisible (another tenant's id), or different sha256
+    A->>DB: INSERT submission_conflicts (payload), flag id_conflict if own row
+    A-->>D: 409 {quarantined: true} - device marks item conflicted, stops retrying
   end
+  J->>DB: validate (Ruby runtime), flags (+attachments_pending), projection, earnings
+  J-->>A: Turbo Stream refresh signal to dashboards
   loop each missing attachment
     D->>A: PUT /submissions/{uuid}/attachments/{uuid} (bytes, sha256)
     A->>S: store blob (verify sha256)
     A->>DB: mark attachment received
     A-->>D: 200
   end
-  DB-->>J: submission complete → enqueue processing
-  J->>DB: validate (Ruby runtime), flags, projection, earnings
-  J-->>A: Turbo Stream broadcast to dashboards
+  DB-->>J: last attachment received → clear flag, re-project
 ```
 
 Retries use exponential backoff with jitter (cap ~15 min) and resume from whatever the server
@@ -146,6 +172,10 @@ says is missing. A submission is `done` on the device only when the server repor
 | App version too old | Server returns `min_app_version`; app uploads outbox first, then blocks new captures and prompts update |
 | Storage nearly full | App warns, refuses new photo captures before the DB can't write |
 | Duplicate tap on submit (web or mobile) | Same client-generated id → single submission |
+| *Revised:* phone clock wrong by months or years | TLS certificate validation fails and nothing can sync. The app recognises the TLS error class, tells the footsoldier to fix the phone's date and time, and leaves the outbox untouched |
+| *Revised:* membership removed while the outbox is full | Session is `draining`; captures made before removal upload; new captures are blocked |
+| *Revised:* `PUT` answered `409` | Payload is quarantined server-side; device marks the item `conflicted`, keeps it visible in the outbox history, and stops retrying |
+| *Revised:* two writers bump the sync cursor concurrently | Advisory lock serialises `seq`; no device skips an event |
 
 ## Phase 1 (web capture) uses the same rules
 
@@ -153,3 +183,10 @@ The browser form filler generates the submission UUID when the form opens, uses 
 for logic, and submits through the same idempotent create path (via a Rails controller that
 shares the `Submissions::Ingest` service with the API). Moving from web to mobile changes the
 client only.
+
+*Revised:* the Phase 1 campaign will run on field networks, so the web filler also
+**autosaves the draft to IndexedDB** under its submission UUID, **retries** the idempotent
+submit with backoff while the tab is open, and restores the draft on reload. Photos are
+resized in the browser before upload. This is not offline capture — a user who closes the
+browser with the server unreachable must come back to the draft — but a dropped connection
+or a crash no longer loses a form.

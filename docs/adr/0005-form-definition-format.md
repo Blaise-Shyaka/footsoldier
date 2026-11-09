@@ -19,6 +19,13 @@ against older versions, and reports must stay correct as forms evolve.
 - Field `key`s are stable across versions and never reused with a different meaning, so
   reporting can aggregate across versions.
 - Each published version records `min_app_version`, the oldest mobile app able to render it.
+- *Revised:* option `value`s are as stable as keys; a key's **type never changes** across
+  versions (use a new key); publishing lints both. Cross-version reports take labels from the
+  latest published version that carries the key or value.
+- *Revised:* choice fields may reference a **shared choice list** (`choices_from`, with
+  `cascade_from` for hierarchies such as Rwanda's province → district → sector → cell →
+  village) instead of inlining options. Choice lists are agency-owned, versioned data, and the
+  platform ships common ones.
 
 ## Consequences
 

@@ -40,7 +40,7 @@ When two of these conflict, the higher one wins.
 | 1 | **Data durability & integrity** | A captured submission is never lost, duplicated or silently changed | 0 lost submissions; every submission traceable device → server → report |
 | 2 | **Tenant isolation & privacy** | No agency or client ever sees another's data | 0 cross-tenant reads; automated isolation tests on every tenant model |
 | 3 | **Availability of capture** | Footsoldiers can always capture, even with no server | Mobile capture works 100% offline; server API 99.5% monthly |
-| 4 | **Simplicity / operability** | A small team can run a cell on modest hardware | Single-VM cell possible; ≤ 4 runtime components |
+| 4 | **Simplicity / operability** | A small team can run a cell on modest hardware | Single-VM cell possible; ≤ 4 components on the request path (app, Postgres, object store, SMTP) — observability tooling is counted separately and is optional on the small cell |
 | 5 | **Portability** | No dependency on one cloud vendor | Runs on any Linux host with Docker |
 | 6 | **Timeliness** | Clients see data shortly after it reaches the server | Dashboard reflects new submissions in ≤ 60 s (p95) |
 | 7 | **Usability** | Agency admins build forms without help; footsoldiers need minimal training | Usability checks per release |
@@ -56,13 +56,18 @@ When two of these conflict, the higher one wins.
 - **Low-resource environments** — small servers, unreliable connectivity, low-end devices.
 - **Browser first, mobile next** — phase 1 capture is in the browser with connectivity;
   the offline mobile app follows, and the architecture must not need rework to support it.
+  *Revised:* the Phase 1 web filler still autosaves drafts locally and retries submits, so a
+  dropped connection never loses a form ([05](05-mobile-and-offline-sync.md)).
+- *Revised:* **Identity by email or phone** — invitations by email link or SMS code
+  ([ADR-0011](../adr/0011-user-identity-email-or-phone.md)).
 - **Humans merge.** Agents open pull requests; a person reviews and merges.
 
 ## Assumptions (to validate)
 
 | Assumption | Used for | If wrong |
 |------------|----------|----------|
-| Per cell, first 2 years: ≤ 200 agencies, ≤ 5,000 active footsoldiers, ≤ 500k submissions/day peak | Sizing Postgres-only design | Add read replica, partition `submissions` by month; still no new components |
+| *Revised:* per cell, first 2 years: ≤ 200 agencies, ≤ 5,000 active footsoldiers, **≤ 100k submissions/day planning peak** (20 per active footsoldier); **500k/day is the ceiling** at which the database moves to a dedicated host | Sizing Postgres-only design; `submissions`, `submission_values`, `audit_events` partitioned by month from day one | Dedicated DB host, then read replica; still no new components. (v0.1 assumed 500k/day as the normal peak, which is ~10M projection rows a day and not a small-VM workload.) |
+| Footsoldiers may work for several agencies; phones may be shared between agents | Device session per user, cursor per agency; one account per phone at a time in v1 | Multi-profile local store on the device |
 | Photos are the main media; video is rare | Simple single-request attachment upload | Add resumable (chunked) uploads |
 | A submission is authored by one footsoldier on one device | Append-only sync with no merge conflicts | Introduce per-field revision merge for collaborative records |
 | Clients don't need raw SQL/BI tool access in v1 | In-app dashboards | Add read-only replica + Metabase/Superset per cell |

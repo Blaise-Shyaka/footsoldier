@@ -22,7 +22,11 @@ it is needed, via a one-off importer into the generic form/submission model.
 
 - No time spent upgrading code that would then be deleted.
 - History and lessons are preserved (tag + legacy assessment doc).
-- Any live users of the legacy app need a cut-over plan (to be confirmed: is it still in use?).
+- Any live users of the legacy app need a cut-over plan. The legacy production config names
+  `rgdata.rw` as its host, so it was deployed; whether it is still in use is to be confirmed.
+- *Revised:* the legacy production config contains a literal mail username and password
+  (committed 2022-08-11). Tagging preserves history, so the credential must be **rotated**
+  before the reset, not merely removed ([00](../architecture/00-legacy-assessment.md)).
 
 ## Alternatives considered
 

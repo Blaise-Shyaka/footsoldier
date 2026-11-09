@@ -38,21 +38,28 @@ flowchart LR
 | Rails web (Puma + Thruster) | 1 container | 2 hosts behind Kamal proxy / load balancer |
 | Rails jobs (Solid Queue) | same host | 1 dedicated host |
 | PostgreSQL | same host, 4 vCPU / 8 GB VM total | Primary + streaming replica on dedicated hosts |
-| Object store | Active Storage `Disk` on an attached volume | S3-compatible store (provider's, or self-hosted e.g. Garage / SeaweedFS / Ceph RGW — evaluate maintenance and licensing at selection time) |
+| Object store | Active Storage `Disk` on an attached volume. *Revised:* this is the same disk as the database, so **backups must leave the host** (below) | S3-compatible store (provider's, or self-hosted e.g. Garage / SeaweedFS / Ceph RGW — evaluate maintenance and licensing at selection time) |
 | SMTP | In-country relay | Same |
 | Monitoring | Same host | Dedicated small host |
 
 The small cell exists so that a pilot in a new country can start on one VM from a local
-provider, and grow without architectural change.
+provider, and grow without architectural change. *Revised:* the one non-negotiable even on
+the small cell is a **second location in-country for backups** (a bucket from a local
+provider, or a second small VM reached over SSH). Failover to a replica, where one exists,
+is **manual** by runbook; the 4 h RTO allows it and automatic failover would add a consensus
+component we do not want to run.
 
 ## Why Postgres-only
 
 Solid Queue, Solid Cache and Solid Cable put jobs, cache and WebSocket pub/sub in Postgres.
 That removes Redis (a component with its own persistence, failover and memory sizing) from
-every cell. The trade-off is extra load on Postgres; at our assumed scale
-([01](01-context-and-goals.md)) that is comfortable, and queue/cache can be moved to a separate
-Postgres database on the same server (Rails supports multiple databases) before anything else
-changes.
+every cell. The trade-off is extra load on Postgres; at the planning peak in
+[01](01-context-and-goals.md) (100k submissions/day, about 2M projection rows/day) that is
+comfortable on a standard cell, and queue/cache can be moved to a separate Postgres database
+on the same server (Rails supports multiple databases) before anything else changes.
+*Revised:* `submissions`, `submission_values` and `audit_events` are partitioned by month
+from the first migration, so growth toward the 500k/day ceiling is handled by adding a
+dedicated database host, not by re-partitioning live tables.
 
 ## Releases and migrations
 
@@ -70,7 +77,7 @@ changes.
 
 | Item | Approach | Target |
 |------|----------|--------|
-| Postgres | Continuous WAL archiving + nightly base backups (pgBackRest or WAL-G) to object storage **in the same jurisdiction**, second copy at a different site in-country | RPO ≤ 5 min, RTO ≤ 4 h |
+| Postgres | Continuous WAL archiving + nightly base backups (pgBackRest or WAL-G) to object storage **in the same jurisdiction and never on the database host**, second copy at a different site in-country. *Revised:* on the small cell this means an in-country bucket or a second VM, not the local `Disk` store | RPO ≤ 5 min, RTO ≤ 4 h |
 | Object store | Versioning on, replicated or synced to a second site | RPO ≤ 24 h |
 | Config / secrets | Kamal secrets in the operator's password manager | — |
 | Restore drills | Automated weekly restore of the latest backup into a scratch DB + row-count check; manual full DR drill quarterly | Drill passes |

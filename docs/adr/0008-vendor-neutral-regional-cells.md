@@ -25,6 +25,11 @@ providers, not a hyperscaler's managed services. Operations staff are few.
 
 - A new country = a new cell from configuration; no code changes.
 - We operate Postgres ourselves (backups, replication, upgrades) — offset by fewer components.
+  *Revised:* failover to the replica is **manual** (a runbook, inside the 4 h RTO); automatic
+  failover would need a consensus component we deliberately do not run.
+- *Revised:* even the smallest cell, where the object store is local disk on the same VM,
+  must ship backups to a **second host or an in-country bucket**. A backup on the database's
+  own disk is not a backup.
 - Postgres carries extra load from queue/cache; can be split into a separate database on the
   same server first, then a separate server, before introducing any new technology.
 - Users of multiple cells need separate logins until a cell directory exists (Phase 4).

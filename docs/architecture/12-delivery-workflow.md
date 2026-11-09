@@ -47,7 +47,9 @@ Refs #<issue>
   `sync`, `tenancy`…) or `mobile`, `deploy`, `docs`.
 - One logical change per commit; tests in the same commit as the code they cover.
 - **No AI co-author or attribution trailers** (no `Co-Authored-By: Claude…`, no
-  "Generated with" lines) in commits, PRs or issues.
+  "Generated with" lines) in commits, PRs or issues. *Revised:* enforce it in tooling rather
+  than by instruction — `"includeCoAuthoredBy": false` in `.claude/settings.json` (committed),
+  plus a commit-msg hook in CI that rejects the trailers.
 
 ## Issues
 
@@ -105,10 +107,16 @@ Closes #<task>
 - Docs/ADRs updated if behaviour or decisions changed.
 - `.agents/` notes updated (below).
 
-## Agent working notes (`.agents/`, git-ignored)
+## Agent working notes (`.agents/`, committed)
 
-Private, regularly updated context so any agent session can pick up where the last one left off.
+Regularly updated context so any agent session can pick up where the last one left off.
 Never contains secrets or production personal data.
+
+*Revised:* v0.1 proposed git-ignoring this folder. Git-ignored files do not exist in git
+worktrees or in CI checkouts, so an agent working in a worktree (the normal case for parallel
+agent sessions — this review ran in one and could not see `docs/` for the same reason) would
+start with no context at all. The folder is committed; the "no secrets, no personal data" rule
+is what makes that safe, and `sessions/` may stay ignored if it gets noisy.
 
 ```
 .agents/
