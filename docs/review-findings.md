@@ -315,7 +315,8 @@ The README's open questions were answered; the documents now reflect them
 4. Email is the identity, which overrules F7; a phone number is required for footsoldiers so
    they can be reached (optional for others), but is not a login. [ADR-0011](adr/0011-user-identity-is-email.md)
    rewritten and accepted.
-5. Single trunk `main`; `main` is fast-forwarded to `develop` in E0.1 and `develop` deleted.
+5. Single trunk `main`; `main` was fast-forwarded to `develop` and made the default branch on
+   2026-11-09, and `develop` is deleted in E0.1.
 6. Footsoldiers work for several agencies and borrow each other's phones. A borrower logs in
    with their own details: one account per phone at a time, logout only once the outbox has
    synced, as F12 proposed. The Phase 4 multi-profile epic is removed, and a `shared_device`

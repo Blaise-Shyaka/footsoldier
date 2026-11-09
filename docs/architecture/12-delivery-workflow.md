@@ -27,11 +27,11 @@ flowchart LR
 
 ## Branches
 
-- Trunk: `main` (decided 2026-11-09). Today `main` is a stale ancestor of `develop`, so in
-  E0.1 it is fast-forwarded to `develop`, made the default branch and protected; `develop` is
-  then deleted. The `legacy-v1` tag marks the old app. The other remote branches (`homepage`,
-  `rg-data`) are deleted once checked for unmerged work.
-- PRs target the trunk. Until E0.1 switches it to `main`, that is `develop`.
+- Trunk: `main` (decided 2026-11-09). On 2026-11-09 `main` was fast-forwarded to `develop`
+  and made the default branch. In E0.1 it gets branch protection, and `develop` and the other
+  stale branches (`homepage`, `rg-data`) are deleted once checked for unmerged work. The
+  `legacy-v1` tag marks the old app.
+- PRs target `main`.
 - Branch name: `<type>/<issue-number>-<short-slug>`, e.g. `feat/42-form-version-publishing`,
   `fix/77-duplicate-submission-409`, `docs/12-sync-adr`. Until the Phase 0 epics exist as
   GitHub issues, work without an issue uses `<type>/<short-slug>`, e.g. `docs/architecture-v0.3`.
