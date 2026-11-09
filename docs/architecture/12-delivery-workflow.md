@@ -14,7 +14,7 @@ flowchart LR
   T --> B[Branch] --> P[Pull request] --> R{Human review}
   R -->|changes| B
   R -->|approve + merge| M[main]
-  M --> D[Deploy staging → production]
+  M --> D[Deploy demo → production]
 ```
 
 - A **task** is the unit of work for an agent: small enough for one PR (aim < ~400 changed lines
@@ -25,7 +25,10 @@ flowchart LR
 
 ## Branches
 
-- Trunk: `main` (proposal: retire `develop` after the reset; keep `legacy-v1` tag).
+- Trunk: `main` (decided 2026-11-09). Today `main` is a stale ancestor of `develop`, so in
+  E0.1 it is fast-forwarded to `develop`, made the default branch and protected; `develop` is
+  then deleted. The `legacy-v1` tag marks the old app. The other remote branches (`homepage`,
+  `rg-data`) are deleted once checked for unmerged work.
 - Branch name: `<type>/<issue-number>-<short-slug>`, e.g. `feat/42-form-version-publishing`,
   `fix/77-duplicate-submission-409`, `docs/12-sync-adr`.
 - Types: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`, `ci`, `perf`.
@@ -48,8 +51,9 @@ Refs #<issue>
 - One logical change per commit; tests in the same commit as the code they cover.
 - **No AI co-author or attribution trailers** (no `Co-Authored-By: Claude…`, no
   "Generated with" lines) in commits, PRs or issues. *Revised:* enforce it in tooling rather
-  than by instruction — `"includeCoAuthoredBy": false` in `.claude/settings.json` (committed),
-  plus a commit-msg hook in CI that rejects the trailers.
+  than by instruction — turn off attribution in the committed `.claude/settings.json` (the
+  setting has been renamed across Claude Code versions; check the current name when adding it),
+  plus a CI check that rejects commits carrying the trailers.
 
 ## Issues
 

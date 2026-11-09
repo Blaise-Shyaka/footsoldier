@@ -81,7 +81,7 @@ flowchart LR
 
 | Module | Owns | Notes |
 |--------|------|-------|
-| `Identity` | users (email or phone), sessions, device sessions, invitations, 2FA, SMS provider adapter | Global within a cell |
+| `Identity` | users (identified by email), sessions, device sessions, invitations, 2FA | Global within a cell |
 | `Tenancy` | agencies, clients, memberships, `Current` tenant context, RLS helpers | The tenant boundary |
 | `Projects` | projects, assignments | Activation, revocation |
 | `Forms` | forms, form versions, choice lists, form spec validation, builder | Pure data + Ruby form runtime |

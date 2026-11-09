@@ -25,7 +25,10 @@ against older versions, and reports must stay correct as forms evolve.
 - *Revised:* choice fields may reference a **shared choice list** (`choices_from`, with
   `cascade_from` for hierarchies such as Rwanda's province → district → sector → cell →
   village) instead of inlining options. Choice lists are agency-owned, versioned data, and the
-  platform ships common ones.
+  platform ships common ones. Publishing a form version **pins the exact choice-list
+  versions** it uses; otherwise editing a list would silently change a published, "immutable"
+  form. Adopting a new list version means publishing a new form version (the builder offers it
+  when a newer list exists).
 
 ## Consequences
 

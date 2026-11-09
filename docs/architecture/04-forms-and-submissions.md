@@ -28,7 +28,7 @@
         { "value": "no", "label": { "en": "Not accepted" } }
       ], "required": true },
     { "key": "why_not", "type": "text", "label": { "en": "Why not accepted?" },
-      "visible_if": { "==": [ { "var": "upi_accepted" }, "no" ] }, "required": true },
+      "visible_if": { "===": [ { "var": "upi_accepted" }, "no" ] }, "required": true },
     { "key": "district", "type": "select_one", "label": { "en": "District" },
       "choices_from": "rw_admin_units", "level": "district" },
     { "key": "sector", "type": "select_one", "label": { "en": "Sector" },
@@ -54,7 +54,9 @@
 
 *Revised:* `select_one`/`select_many` may take options from a shared **choice list**
 (`choices_from`) and cascade on another field (`cascade_from`) in v1 — every Rwandan address
-needs it, and the legacy forms prove it.
+needs it, and the legacy forms prove it. A published form version pins the choice-list
+versions it was published with, so the form stays immutable when a list is edited
+([ADR-0005](../adr/0005-form-definition-format.md)).
 
 Later: `signature`, `barcode`, `audio`, `geotrace`/`geoshape`, `rating`, `matrix`, file upload.
 
@@ -76,11 +78,14 @@ Later: `signature`, `barcode`, `audio`, `geotrace`/`geoshape`, `rating`, `matrix
 
 *Revised* ([ADR-0006](../adr/0006-shared-form-logic.md)):
 
-- **Operators** are an allowlist; `==` is strict (no coercion); anything outside the list
-  fails spec validation.
+- **Operators** are an allowlist; equality is `===`/`!==` only (loose `==`/`!=` are not on the
+  list); anything outside the list fails spec validation.
 - **Custom operators** (implemented in both runtimes, covered by conformance vectors):
-  `date_diff(a, b, unit)`, `today()`, `matches(string, regex)` with an RE2-safe regex subset,
-  and `count`, `sum`, `any`, `all` over a repeat group.
+  `date_diff(a, b, unit)`, `today()`, `matches(string, regex)` with a regex subset that behaves
+  identically in Ruby and JavaScript, and `count`, `sum`, `any`, `all` over a repeat group.
+- **Time is the capture time.** `today()` evaluates to the date of `captured_at` in the
+  project's time zone, on the device and on the server, so server re-validation days later
+  reaches the same answer as the phone did.
 - **Scoping:** inside a repeat, `{"var": "result"}` refers to the current instance;
   `{"var": "/merchant_name"}` addresses the root; `{"var": "$index"}` is the instance index.
 
@@ -151,13 +156,16 @@ default, with a toggle to include pending.
 | Content | `answers` (jsonb exactly as captured), `payload_sha256`, `attachment_manifest` |
 | Time | `started_at`, `captured_at` (device clock), `received_at` (server), `clock_skew_s` (from sync handshake) |
 | Location | `location` (PostGIS-free: `lat`, `lng` numeric + `accuracy_m`, `altitude_m`, `fix_at`, `provider`, `is_mocked`) |
-| Source | `channel` (`web`/`android`/`ios`/`legacy_import`), `app_version` |
+| Source | `channel` (`web`/`android`/`ios`), `app_version` |
 | Status | `state`, `review_status`, `flags` (jsonb array of `{code, detail}`) |
 
 Answers are never edited. *Revised:* a **Correction** (a submission of kind `correction`
 with `parent_submission_id`, holding only the changed keys, with author and reason) changes
-what reports show while keeping the original. Available to reviewers from Phase 1, because
-the legacy app's `edited_by` column shows the need arose in the first campaign.
+what reports show while keeping the original. Available from Phase 1, because the legacy
+app's `edited_by` column shows the need arose in the first campaign. Reviewers can always
+correct; the original footsoldier can too when the project enables it, which is what the
+legacy promoters did. A footsoldier's correction is created on the device with its own UUID
+and syncs like any other submission, so the append-only protocol is unchanged.
 
 ### Quality flags (data accuracy)
 
@@ -171,6 +179,7 @@ Computed in the processing job; each is a rule with a code, so new rules are che
 | `too_fast` | Duration below a project-specific minimum |
 | `duplicate_value` | `unique_within: project` field collides with an existing submission |
 | `late_after_revocation` | Captured before but received after assignment revocation |
+| `shared_device` | The same phone captured for more than one footsoldier in this project on the same day (phones are lent legitimately, but reviewers should see it) |
 | `clock_suspect` | Device clock skew above threshold |
 | `attachments_pending` | *Revised:* answers processed, one or more attachments not yet received |
 | `id_conflict` | *Revised:* a later `PUT` with this id carried a different checksum; the payload is in `submission_conflicts` |

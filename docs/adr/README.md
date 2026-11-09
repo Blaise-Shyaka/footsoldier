@@ -3,6 +3,9 @@
 > **Revised 2026-11-07** following the architecture review in
 > [`docs/review-findings.md`](../review-findings.md). Changes against v0.1 are marked
 > *Revised* in each record; ADR-0011 is new.
+>
+> **2026-11-09:** the product owner accepted ADR-0009 (React Native) and ADR-0011 (email
+> identity, which overrules the review's email-or-phone proposal).
 
 Each ADR records one significant decision: context, decision, consequences, and the
 alternatives we rejected. ADRs are immutable once *Accepted*; a changed decision gets a new ADR
@@ -20,9 +23,9 @@ Statuses: `Proposed` → `Accepted` | `Rejected`; later `Superseded by ADR-NNNN`
 | [0006](0006-shared-form-logic.md) | JSONLogic for form logic, with a cross-runtime conformance suite | Proposed |
 | [0007](0007-offline-sync-protocol.md) | Idempotent, append-only offline sync with device-generated UUIDv7 ids | Proposed |
 | [0008](0008-vendor-neutral-regional-cells.md) | Vendor-neutral regional cells on Postgres, deployed with Kamal | Proposed |
-| [0009](0009-mobile-stack.md) | React Native (Expo) with SQLite for the mobile app | Proposed |
+| [0009](0009-mobile-stack.md) | React Native (Expo) with SQLite for the mobile app | Accepted (2026-11-09) |
 | [0010](0010-reporting-projection.md) | Typed answer projection for reporting, in Postgres | Proposed |
-| [0011](0011-user-identity-email-or-phone.md) | User identity is an email address or a phone number | Proposed |
+| [0011](0011-user-identity-is-email.md) | User identity is an email address | Accepted (2026-11-09) |
 
 ## Template
 

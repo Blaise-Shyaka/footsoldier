@@ -58,16 +58,17 @@ When two of these conflict, the higher one wins.
   the offline mobile app follows, and the architecture must not need rework to support it.
   *Revised:* the Phase 1 web filler still autosaves drafts locally and retries submits, so a
   dropped connection never loses a form ([05](05-mobile-and-offline-sync.md)).
-- *Revised:* **Identity by email or phone** — invitations by email link or SMS code
-  ([ADR-0011](../adr/0011-user-identity-email-or-phone.md)).
+- **Identity by email.** Invitations, confirmation and password reset go by email. A phone
+  number is required for footsoldiers so they can be reached (optional for other users), and
+  it is not a login ([ADR-0011](../adr/0011-user-identity-is-email.md), decided 2026-11-09).
 - **Humans merge.** Agents open pull requests; a person reviews and merges.
 
 ## Assumptions (to validate)
 
 | Assumption | Used for | If wrong |
 |------------|----------|----------|
-| *Revised:* per cell, first 2 years: ≤ 200 agencies, ≤ 5,000 active footsoldiers, **≤ 100k submissions/day planning peak** (20 per active footsoldier); **500k/day is the ceiling** at which the database moves to a dedicated host | Sizing Postgres-only design; `submissions`, `submission_values`, `audit_events` partitioned by month from day one | Dedicated DB host, then read replica; still no new components. (v0.1 assumed 500k/day as the normal peak, which is ~10M projection rows a day and not a small-VM workload.) |
-| Footsoldiers may work for several agencies; phones may be shared between agents | Device session per user, cursor per agency; one account per phone at a time in v1 | Multi-profile local store on the device |
+| *Revised:* per cell, first 2 years: ≤ 200 agencies, ≤ 5,000 active footsoldiers, **≤ 100k submissions/day planning peak** (20 per active footsoldier); **500k/day is the ceiling** at which the database moves to a dedicated host | Sizing Postgres-only design; `submission_values` and `audit_events` partitioned by month from day one (`submissions` stays one table, see [ADR-0010](../adr/0010-reporting-projection.md)) | Dedicated DB host, then read replica; still no new components. (v0.1 assumed 500k/day as the normal peak, which is ~10M projection rows a day and not a small-VM workload.) |
+| *Confirmed 2026-11-09:* footsoldiers work for several agencies, and agents borrow each other's phones | Device session per user, cursor per agency; one account logged in per phone at a time, and logout only once the outbox has synced ([05](05-mobile-and-offline-sync.md)) | — (no longer an assumption) |
 | Photos are the main media; video is rare | Simple single-request attachment upload | Add resumable (chunked) uploads |
 | A submission is authored by one footsoldier on one device | Append-only sync with no merge conflicts | Introduce per-field revision merge for collaborative records |
 | Clients don't need raw SQL/BI tool access in v1 | In-app dashboards | Add read-only replica + Metabase/Superset per cell |

@@ -32,12 +32,12 @@ erDiagram
 
 | Entity | Key fields | Notes |
 |--------|-----------|-------|
-| `User` | email (citext, nullable, unique), phone (E.164, nullable, unique), name, password_digest, confirmed_at, locale, otp_secret | One identity per person per cell; at least one of email/phone. Not tenant-scoped. *Revised:* [ADR-0011](../adr/0011-user-identity-email-or-phone.md). |
+| `User` | email (citext, required, unique), phone (E.164, nullable, not unique; required for footsoldiers), name, password_digest, confirmed_at, locale, otp_secret | One identity per person per cell, keyed by email; phone is required for footsoldiers so they can be reached, validated with libphonenumber, and is not a login ([ADR-0011](../adr/0011-user-identity-is-email.md)). Not tenant-scoped. |
 | `Agency` | slug, name, status (`active`/`suspended`), data_region | **The tenant root.** |
-| `Client` | agency_id, name, status | Belongs to exactly one agency. A real-world organization served by two agencies is two `Client` records (isolation over convenience — see open question 2). |
-| `Membership` | agency_id, user_id, client_id (nullable), role, status, invited_by | A user's role in one agency. Client users have `client_id` set. A user can hold memberships in several agencies. *Revised:* unique on `(agency_id, user_id, client_id)`. |
-| `Invitation` | agency_id, email **or phone**, role, client_id, token_digest, expires_at, accepted_at | Email link or SMS code → set password / confirm → membership activated. |
-| `DeviceSession` | user_id, device_id, token_digest, platform, app_version, last_seen_at, `state` (`active`/`draining`/`revoked`), revoked_at, drain_until | Long-lived, revocable API token per device. *Revised:* `draining` lets a removed member's outbox finish uploading ([05](05-mobile-and-offline-sync.md)). Belongs to the user, not to one agency. |
+| `Client` | agency_id, name, status | Belongs to exactly one agency. A real-world organization served by several agencies is one `Client` record **per agency**, and its data is never combined across agencies (decided 2026-11-09). A person working for that organization has one user identity with a client membership in each agency, and moves between them with the agency switcher. |
+| `Membership` | agency_id, user_id, client_id (nullable), role, status, invited_by | A user's role in one agency. Client users have `client_id` set. A user can hold memberships in several agencies. *Revised:* unique on `(agency_id, user_id, client_id)` with `NULLS NOT DISTINCT` (Postgres 15+); a plain unique index treats `NULL` client ids as different and would allow duplicate agency-level memberships. |
+| `Invitation` | agency_id, email, role, client_id, token_digest, expires_at, accepted_at | Email link → set password (and phone number, for footsoldiers) / confirm → membership activated. |
+| `DeviceSession` | user_id, device_id, token_digest, platform, app_version, last_seen_at, `state` (`active`/`draining`/`revoked`), revoked_at, drain_until | Long-lived, revocable API token per device. *Revised:* `draining` lets a removed member's outbox finish uploading ([05](05-mobile-and-offline-sync.md)). Belongs to the user, not to one agency. Unique on `(user_id, device_id)`: footsoldiers borrow each other's phones, so a device can carry sessions for different users over time (one logged in at a time). |
 | `PlatformStaff` | email, password_digest, otp_secret, role | **Separate table and login** from tenant users. |
 
 Roles on `Membership`:
@@ -71,15 +71,15 @@ Detailed in [04](04-forms-and-submissions.md). Summary:
 
 | Entity | Notes |
 |--------|-------|
-| `ChoiceList` | *Revised:* agency-owned (or platform-provided) named option list, versioned; supports hierarchies (`parent_value`) for cascading selects such as Rwanda's administrative units. Referenced by `choices_from`. |
+| `ChoiceList` | *Revised:* agency-owned (or platform-provided) named option list, versioned; supports hierarchies (`parent_value`) for cascading selects such as Rwanda's administrative units. Referenced by `choices_from`; a published `FormVersion` pins the list versions it uses. |
 | `Form` | Belongs to a project; has a stable `key`. Can be duplicated into another project. |
 | `FormVersion` | `definition` (jsonb), `version` (int), `status` (`draft`/`published`/`retired`), `checksum`. Published = immutable. |
-| `Submission` | Client-generated UUIDv7 id; `answers` (jsonb, as captured); device/timing/location metadata; `state` and `review_status`. Never updated in place except status columns. *Revised:* `kind` (`capture`/`follow_up`/`correction`) and nullable `parent_submission_id` from Phase 1, so follow-up records and corrections need no later migration. Partitioned by month. |
+| `Submission` | Client-generated UUIDv7 id; `answers` (jsonb, as captured); device/timing/location metadata; `state` and `review_status`. Never updated in place except status columns. *Revised:* `kind` (`capture`/`follow_up`/`correction`) and nullable `parent_submission_id` from Phase 1, so follow-up records and corrections need no later migration. Not partitioned: the primary key on `id` alone is the idempotency guarantee ([ADR-0010](../adr/0010-reporting-projection.md)). |
 | `SubmissionConflict` | *Revised:* quarantined payload received with an existing id but a different checksum; visible to agency admins and support, never reported. |
 | `Attachment` | Client-generated UUID; belongs to submission + field key; Active Storage blob; checksum. |
 | `SubmissionValue` | Typed projection row per answered field (for analytics). Rebuildable. |
 | `ReviewEvent` | Append-only: accepted / flagged / rejected / note, by whom, why. |
-| `Correction` | *Revised, Phase 1:* a `Submission` of kind `correction` whose `answers` hold only the changed keys, authored by the reviewer, with a reason. Reports read the latest correction over the original; the original is never modified. |
+| `Correction` | *Revised, Phase 1:* a `Submission` of kind `correction` whose `answers` hold only the changed keys, with author and reason. Authored by a reviewer, or by the original footsoldier when the project allows it (the legacy edits were made by promoters, not by reviewers); a footsoldier's correction is created on the device and syncs like any other submission. Reports read the latest correction over the original; the original is never modified. |
 
 ### Every tenant-owned table has `agency_id`
 
@@ -93,8 +93,9 @@ Primary keys: `bigint` for server-created rows; **UUIDv7** for anything a device
 *Revised:* child tables carry **composite foreign keys** to their parent,
 `(agency_id, project_id) REFERENCES projects (agency_id, id)`, so the denormalized
 `agency_id` can never disagree with the parent's. Pre-tenant queries (a user's own
-memberships, invitation lookup, device login) have explicit user-keyed RLS policies rather
-than bypassing RLS ([ADR-0004](../adr/0004-multi-tenancy.md)).
+memberships, device login) have explicit user-keyed RLS policies rather than bypassing RLS;
+invitation acceptance, where the invitee may have no account yet, goes through one narrow
+lookup function keyed on the token digest ([ADR-0004](../adr/0004-multi-tenancy.md)).
 
 ## Authorization
 

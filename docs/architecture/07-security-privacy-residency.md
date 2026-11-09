@@ -16,15 +16,18 @@ A cross-tenant leak would end the product, so isolation is enforced twice
      returning no rows.
    - `ALTER TABLE … FORCE ROW LEVEL SECURITY` on every tenant table. Owners bypass RLS
      otherwise, and the test database is owned by the test role, so isolation tests would
-     pass vacuously. Tests connect as a non-owner role.
+     pass vacuously. Tests connect as a role that is neither owner nor superuser (superusers
+     bypass even forced RLS).
    - The setting is applied in a **connection-pool checkout hook** from `Current` and
-     cleared on check-in; any connection without it sees no rows (fail closed). `load_async`
-     and any second connection in a request are covered by the same hook, and `load_async`
-     stays disabled until it is.
+     cleared on check-in; any connection without it sees no rows (fail closed). Every
+     connection a request checks out goes through the hook. `load_async` stays disabled in v1,
+     because its executor threads do not carry `Current`.
    - **No transaction-mode pooler** in front of the app role (session `SET` would leak between
      clients); if ever needed, switch to `SET LOCAL` per request transaction.
-   - Pre-tenant queries (a user's memberships for the agency switcher, invitation lookup,
-     device login) use **user-keyed policies** on `app.user_id`, never `BYPASSRLS`.
+   - Pre-tenant queries (a user's memberships for the agency switcher, device login) use
+     **user-keyed policies** on `app.user_id`, never `BYPASSRLS`. Invitation acceptance, where
+     there may be no user yet, goes through a single `SECURITY DEFINER` function keyed on the
+     token digest.
    - Composite foreign keys `(agency_id, parent_id)` keep the denormalized `agency_id`
      consistent with the parent row.
    Migrations and platform-level maintenance use a separate role with `BYPASSRLS`; support
@@ -40,9 +43,9 @@ on it, and an RLS policy (checked by a schema lint test).
 
 | Who | Mechanism |
 |-----|-----------|
-| Agency & client users (web) | Rails 8 authentication generator (`has_secure_password`, DB-backed sessions), email confirmation, password reset, rate limiting on login. TOTP 2FA required for `agency_owner`/`agency_admin`, optional for others. |
-| Footsoldiers (web) | Same as above; invited by email link **or SMS code** ([ADR-0011](../adr/0011-user-identity-email-or-phone.md)); phone-only accounts reset passwords by SMS code. |
-| Footsoldiers (mobile) | Device token (256-bit random, stored as SHA-256 digest) bound to `device_id`; revocable per device; local PIN/biometric to unlock offline. *Revised:* states `active` → `draining` → `revoked`; a draining token can only upload captures made before removal, for 30 days. |
+| Agency & client users (web) | Rails 8 authentication generator (`has_secure_password`, DB-backed sessions), email confirmation, password reset, rate limiting on login. TOTP 2FA required for `agency_owner`/`agency_admin`, optional for others. An SMS code to the user's phone number may later become an optional second factor for other roles, never for owners and admins (ADR-0011). |
+| Footsoldiers (web) | Same as above; invited by email link ([ADR-0011](../adr/0011-user-identity-is-email.md)). |
+| Footsoldiers (mobile) | Device token (256-bit random, stored as SHA-256 digest) bound to `device_id`; revocable per device; local PIN/biometric to unlock offline. One account is logged in at a time; a borrower logs in with their own details after the outbox has synced ([05](05-mobile-and-offline-sync.md)). *Revised:* states `active` → `draining` → `revoked`; a draining token can only upload captures made before removal, for 30 days. |
 | Platform staff | Separate `PlatformStaff` model and login path, mandatory 2FA, IP allowlist optional. |
 
 Web sessions are revoked when a membership is removed or a password changed. *Revised:*
@@ -117,6 +120,12 @@ login/2FA events.
 ## Application security baseline
 
 - Brakeman, `bundler-audit`, `npm audit` in CI; Dependabot for Ruby, JS and GitHub Actions.
+- **Secret scanning, in two layers.** GitHub secret scanning with push protection is on for
+  the repository, so a push containing a known credential format is blocked before it lands.
+  CI also runs gitleaks on every pull request; it catches generic secrets (passwords in
+  config files, as in the legacy app) that provider patterns miss, and `bin/ci` runs it
+  locally too. A leaked secret is revoked first and removed from the code second: history
+  cannot be un-published.
 - Rails 8 `rate_limit` on auth endpoints and the device API. *Revised:* limits on
   authentication and `GET` endpoints are strict; `PUT` submissions and attachments are limited
   **per device** at a rate far above any honest outbox (e.g. 600/min) and only alert below an

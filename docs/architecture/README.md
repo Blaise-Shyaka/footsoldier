@@ -1,15 +1,23 @@
 # Footsoldier — Architecture
 
-Status: **Proposed** (v0.2, revised 2026-11-07). Nothing here is final until the decisions in
-[`docs/adr`](../adr) are marked *Accepted*.
+Status: **Proposed** (v0.3, 2026-11-09). Nothing here is final until the decisions in
+[`docs/adr`](../adr) are marked *Accepted*; ADR-0009 and ADR-0011 are.
+
+> **v0.3** records the product owner's answers to the open questions
+> ([below](#product-owner-decisions-2026-11-09)).
 
 > **v0.2** applies the findings in [`docs/review-findings.md`](../review-findings.md).
 > Paragraphs that changed are marked *Revised*. The main changes: a gap-free sync cursor,
 > processing on receipt instead of after attachments, quarantine for checksum conflicts,
 > draining device sessions for removed members, a realistic sizing assumption with
-> partitioning from day one, the concrete RLS mechanism, email-or-phone identity
-> ([ADR-0011](../adr/0011-user-identity-email-or-phone.md)), and corrections, choice
-> lists and numeric aggregates pulled forward into Phase 1.
+> partitioning from day one, the concrete RLS mechanism, and corrections, choice lists and
+> numeric aggregates pulled forward into Phase 1. (v0.2 also proposed email-or-phone
+> identity; v0.3 replaces it with email identity,
+> [ADR-0011](../adr/0011-user-identity-is-email.md).)
+>
+> Where the review's own fixes needed correcting (for example, partitioning `submissions`
+> would have broken idempotent uploads), the change is described in the
+> [response to the review](../review-findings.md#response-to-the-review).
 
 Footsoldier is a multi-tenant SaaS for field data collection. Agencies design forms,
 recruit and assign field agents ("footsoldiers"), and present the collected data to the
@@ -67,27 +75,23 @@ Architecture Decision Records live in [`docs/adr`](../adr/README.md).
   pushed to dashboards over Turbo Streams. The agency decides exactly what the client sees.
   ([ADR-0010](../adr/0010-reporting-projection.md))
 - **Deployable anywhere with Kamal** onto plain Linux hosts, one cell per jurisdiction
-  (e.g. a Rwanda cell hosted in Rwanda). ([ADR-0008](../adr/0008-vendor-neutral-regional-cells.md))
+  (e.g. a Rwanda cell hosted in Rwanda). A demo with no real campaign data runs on the team's
+  Coolify server. ([ADR-0008](../adr/0008-vendor-neutral-regional-cells.md),
+  [08](08-deployment-and-operations.md#environments))
+
+## Product-owner decisions (2026-11-09)
+
+| # | Question | Decision | Where it lands |
+|---|----------|----------|----------------|
+| 1 | Must legacy production data be migrated or archived? | **Neither.** The legacy app holds no data worth keeping; no importer, no cut-over. | [00](00-legacy-assessment.md), [ADR-0002](../adr/0002-rebuild-on-rails-8.md), [11](11-roadmap.md) |
+| 2 | Can one real-world client be served by several agencies? | **Yes, but its data is never combined.** One `Client` record per agency; a client person has one user identity and a membership in each agency, and switches between them. | [03](03-domain-model.md) |
+| 3 | Mobile stack | **React Native (Expo).** | [ADR-0009](../adr/0009-mobile-stack.md), accepted |
+| 4 | Log in with phone as well as email? | **No: email is the identity.** A phone number is required for footsoldiers so they can be reached (optional for others, validated without SMS); it is not a login, and may later serve as a second factor. This overrules the review's email-or-phone proposal. | [ADR-0011](../adr/0011-user-identity-is-email.md), accepted |
+| 5 | Branching | **Single trunk `main`.** `main` is fast-forwarded to `develop` and becomes the default branch; `develop` is deleted. | [12](12-delivery-workflow.md), [11](11-roadmap.md) E0.1 |
+| 6 | Do footsoldiers work for several agencies, and do they share phones? | **Yes to both.** Multi-agency support stays as designed. A borrower logs in with their own details; the app holds one account at a time, and logout waits until the outbox has synced. No multi-profile support is planned. | [05](05-mobile-and-offline-sync.md) |
+| 7 | Where does it run? | **Demo on the team's Coolify server** (full flow, no real campaign data). **Production on Linux servers in the client's country with Kamal**, from the first signed client. The Kamal path is proven on a throwaway VM at the end of Phase 0 if capacity allows, and before any client signs. No Cloudflare edge services. | [08](08-deployment-and-operations.md#environments), [11](11-roadmap.md) |
 
 ## Open questions for the product owner
 
-These change scope or sequencing; see each linked document for the trade-offs.
-
-1. Is there production data in the legacy app that must be migrated, or only archived?
-   ([00](00-legacy-assessment.md))
-2. Can one real-world client be served by two agencies on the platform, and does the client
-   then expect a single combined login? The proposal says *separate client records per
-   agency, one user identity*. ([03](03-domain-model.md))
-3. Mobile stack: React Native is proposed mainly to share TypeScript form logic with the
-   web. If the team has stronger Flutter/Dart skills, revisit [ADR-0009](../adr/0009-mobile-stack.md).
-4. *Revised:* identity by email **or** phone number is now the proposal
-   ([ADR-0011](../adr/0011-user-identity-email-or-phone.md)); the legacy app required
-   a phone number for every user. The remaining question is which in-country SMS provider to
-   use for the first cell, and whether SMS cost is acceptable per invitation.
-6. Do footsoldiers work for more than one agency at a time, and do agencies share phones
-   between agents? Both are now designed for in [05](05-mobile-and-offline-sync.md), but the
-   shared-phone rule in v1 is restrictive (one account per phone at a time).
-7. The legacy production config contains a literal mail credential. Who can rotate it, and
-   is `rgdata.rw` still serving the legacy app? ([00](00-legacy-assessment.md))
-5. Branching: `develop` is the current default and `main` is stale. Proposal: single trunk
-   `main`. ([12](12-delivery-workflow.md))
+None at the moment. The last one closed on 2026-11-09: the leaked Gmail app password is
+revoked and `rgdata.rw` is no longer running ([00](00-legacy-assessment.md)).

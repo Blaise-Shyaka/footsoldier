@@ -20,6 +20,10 @@ providers, not a hyperscaler's managed services. Operations staff are few.
   Solid Queue / Solid Cache / Solid Cable on Postgres. No Redis, no managed queues.
 - Package as Docker images and deploy with **Kamal** to any Linux host over SSH.
 - Nothing personal crosses cells; any central operator view receives aggregate metrics only.
+- *Revised (2026-11-09):* a **demo environment**, which is not a cell and holds no real
+  campaign data, runs on the team's Coolify server. Production cells use Kamal, and the Kamal
+  path is proven on a throwaway VM before any client signs
+  ([08](../architecture/08-deployment-and-operations.md#environments)).
 
 ## Consequences
 

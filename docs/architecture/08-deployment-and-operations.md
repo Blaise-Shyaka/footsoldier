@@ -31,6 +31,47 @@ flowchart LR
 - A future **cell directory** (tiny, personal-data-free service mapping agency slug → cell URL)
   lets users log in from a single domain. Until then invitation links carry the cell URL.
 
+## Environments
+
+Decided 2026-11-09.
+
+| Environment | Where | Data | Deployed with |
+|-------------|-------|------|---------------|
+| **Demo** | The team's Contabo server, managed by Coolify, next to other apps | Full flow, **no real campaign data** | Coolify |
+| **Production cell** | Linux servers in the client's jurisdiction, from the first signed client | Real data | Kamal |
+
+### Demo on Coolify
+
+The demo runs everything: invitations, accounts, form building, capture, review, dashboards
+and exports. It holds **no real campaign data** (no real respondents' answers, IDs, phone
+numbers, photos or locations) for two reasons. Contabo has no data centre in Rwanda, and
+Rwanda's Law No. 058/2021 (Art. 50) keeps personal data in the country unless the NCSA has
+authorised otherwise. And the demo does not meet the durability targets (one shared disk,
+single-copy file storage, periodic dumps). Demo accounts ask only for a name and work email,
+and the sign-up page says the demo is hosted outside Rwanda; confirm with counsel that this is
+enough.
+
+- **App:** the same image CI builds for production, pulled from GitHub's container registry;
+  CI triggers Coolify's deploy webhook. One container runs web and jobs
+  (`SOLID_QUEUE_IN_PUMA`) until load calls for a separate worker.
+- **Postgres:** a Coolify-managed database holding the four Rails databases (primary, cache,
+  queue, cable). The app connects as a **restricted role**, never Coolify's default `postgres`
+  user: a superuser bypasses row-level security ([07](07-security-privacy-residency.md)).
+  Migrations run as the owner role.
+- **Files:** Garage from Coolify's service templates, used through Active Storage's S3 service
+  (path-style addressing). Direct browser uploads and the bucket's CORS rule are tested early,
+  because that is where S3-compatible stores most often differ.
+- **Backups:** Coolify's scheduled database dumps and a scheduled copy of Garage's buckets go to
+  a bucket **off the server**; the weekly restore test reads from there.
+
+### Kamal dry run
+
+Before any client signs, and at the end of Phase 0 if the team has capacity, the production
+path is proven once on a throwaway VM: deploy the same image with the Kamal configuration the
+cells will use, set up continuous WAL archiving off the host, restore from it on a separate
+host, record what broke, and delete the VM. Without it, the first client's cell would be the
+first time Kamal and the WAL backups ever run.
+
 ## Runtime components per cell
 
 | Component | Minimum ("small cell") | Recommended ("standard cell") |
@@ -57,14 +98,15 @@ every cell. The trade-off is extra load on Postgres; at the planning peak in
 [01](01-context-and-goals.md) (100k submissions/day, about 2M projection rows/day) that is
 comfortable on a standard cell, and queue/cache can be moved to a separate Postgres database
 on the same server (Rails supports multiple databases) before anything else changes.
-*Revised:* `submissions`, `submission_values` and `audit_events` are partitioned by month
-from the first migration, so growth toward the 500k/day ceiling is handled by adding a
-dedicated database host, not by re-partitioning live tables.
+*Revised:* `submission_values` and `audit_events` are partitioned by month from the first
+migration, so growth toward the 500k/day ceiling is handled by adding a dedicated database
+host, not by re-partitioning live tables. `submissions` stays a single table so that its
+primary key on `id` keeps uploads idempotent ([ADR-0010](../adr/0010-reporting-projection.md)).
 
 ## Releases and migrations
 
 - One Docker image per commit on `main`, tagged with the git SHA; built in CI.
-- Deploy order per cell: staging cell → production cells, one at a time.
+- Deploy order: demo (Coolify) → production cells, one at a time.
 - **Zero-downtime migrations** using expand/contract; `strong_migrations` blocks unsafe ones.
   Every migration must be backward compatible with the currently deployed code.
 - Feature flags (Flipper, Active Record adapter) separate deploy from release; entitlements

@@ -75,23 +75,29 @@ pruned.
 - First login requires connectivity: email + password (or invitation link) → server issues a
   long-lived, revocable **device token** bound to `device_id`.
 - The app then requires a local PIN or biometric to open, so it works offline and protects a
-  shared or lost phone. Revoking the device session server-side takes effect on next contact;
-  pending data is still uploaded before the local session is wiped.
+  lost phone. Revoking the device session server-side takes effect on next contact; pending
+  data is still uploaded before the local session is wiped.
 - Invitation links carry the cell base URL, so the app knows which regional cell to talk to.
 - *Revised:* `device_id` is a UUID generated at first launch and kept in the secure store
   (Expo exposes no stable hardware id).
-- *Revised — multiple agencies:* a device session belongs to the user. `GET /sync` returns
+- *Revised — multiple agencies (confirmed 2026-11-09: footsoldiers work for several
+  agencies):* a device session belongs to the user. `GET /sync` returns
   changes for **every active footsoldier membership**, with one cursor per agency; projects
   are grouped by agency in the UI; each outbox row carries its `agency_id`.
-- *Revised — shared phones:* v1 holds **one account per device at a time**. Switching
-  accounts requires an empty outbox and connectivity, and the app says so. Multi-profile
-  local storage (separate encrypted outboxes per user) is a later feature. Agencies that share
-  phones must plan a sync before each handover.
 - *Revised — removed members:* when a membership is removed the session becomes `draining`
   for 30 days: `PUT` of submissions and attachments captured before `revoked_at` (plus clock
   tolerance) still succeeds; every other call returns `401 {reason: "draining"}`. The app
   drains, then wipes the local session. A hard revoke returns `401 {reason: "revoked"}` and
   the app keeps the outbox read-only on the phone for support.
+- **Borrowed phones** (decided 2026-11-09: footsoldiers lend each other phones). The app holds
+  one account at a time. A footsoldier who borrows a phone logs in with their own details once
+  the current user has logged out. Logging out requires an empty outbox, so the app syncs
+  first and says so when there is no connection; the previous user's captures are never left
+  behind or discarded. Logging out then wipes that account's local data, so the borrower sees
+  none of it. On the server, the borrower gets their own `DeviceSession` for the same
+  `device_id`, and a `shared_device` quality flag marks a phone that captured for more than
+  one footsoldier in the same project on the same day ([04](04-forms-and-submissions.md)).
+
 
 ## Sync protocol (API v1)
 
@@ -105,10 +111,11 @@ and enforced by request tests ([10](10-testing-strategy.md)).
 | `DELETE /sessions/current` | Logout (after outbox is empty) | ✓ |
 | `GET /sync?cursors[<agency_id>]=<n>` | Delta since cursor, per agency: assignments, project status, form version refs, revocations, choice-list versions, server time, min app version | Read |
 | `GET /form_versions/:id` | Immutable definition; `ETag` = checksum, cache forever | Read |
+| `GET /choice_list_versions/:id` | Immutable choice-list version pinned by a form version; cache forever | Read |
 | `PUT /submissions/:uuid` | Create submission | Same id + same checksum → `200`; same id + different checksum → `409 {quarantined: true}` (payload stored in `submission_conflicts`) |
 | `PUT /submissions/:uuid/attachments/:uuid` | Upload one file (body = bytes, `Content-SHA256` header; `Content-Range` reserved for resumable upload later) | Same id + same checksum → `200` |
 | `HEAD /submissions/:uuid/attachments/:uuid` | Bytes received so far (reserved for resumable upload) | Read |
-| `GET /submissions?since=` | Own submission statuses (review outcome, flags) and earnings | Read |
+| `GET /submissions?before=<uuid>` | Own submission history (review outcome, flags, earnings), paged by id. *Revised:* changes to these arrive through `GET /sync`, not through a timestamp `since=` | Read |
 
 ### Sync cursor
 
@@ -116,14 +123,24 @@ and enforced by request tests ([10](10-testing-strategy.md)).
 publication, choice-list version, revocation) appends a row to `sync_events`
 (`agency_id`, `seq`, `kind`, `subject_id`, `membership_id` or null). `GET /sync` returns rows
 with `seq > cursor` for that footsoldier's memberships, plus the new cursor per agency. This
-avoids timestamp comparisons across machines with different clocks.
+avoids timestamp comparisons across machines with different clocks. Review outcomes and
+earnings changes on a footsoldier's own submissions are events too (scoped to the
+membership), so they share the same gap-free stream instead of a separate `since=` timestamp.
+
+A device with **no cursor** for an agency (first login, new membership) or a cursor **older
+than the event retention window** (90 days) receives a **snapshot** of its current state
+(active assignments, current form and choice-list versions, project statuses) and the current
+`seq`, not a replay of the agency's history. Events older than the window are pruned, so the
+table stays small.
 
 `seq` is assigned **under a per-agency transaction-scoped advisory lock**
 (`pg_advisory_xact_lock(agency_id)`), so events become visible in `seq` order. Stamping a
 sequence value on rows at write time is not enough: with two concurrent writers, `seq` 10
 can commit after a device has already read past 11, and the device would never see 10 —
 a missed revocation or form version. The idempotency suite tests this with concurrent
-writers ([10](10-testing-strategy.md)).
+writers ([10](10-testing-strategy.md)). The lock is held only for the short transaction that
+writes the event, and these writes are rare next to submissions (which never take it), so
+serialising them per agency costs nothing noticeable.
 
 ### Upload sequence
 
@@ -171,6 +188,7 @@ says is missing. A submission is `done` on the device only when the server repor
 | Form republished while footsoldier has a draft | Draft stays on its version; new captures use the new version |
 | App version too old | Server returns `min_app_version`; app uploads outbox first, then blocks new captures and prompts update |
 | Storage nearly full | App warns, refuses new photo captures before the DB can't write |
+| Phone lent while the owner's outbox is not empty | Logout is refused until the outbox has synced; the borrower logs in afterwards with their own details |
 | Duplicate tap on submit (web or mobile) | Same client-generated id → single submission |
 | *Revised:* phone clock wrong by months or years | TLS certificate validation fails and nothing can sync. The app recognises the TLS error class, tells the footsoldier to fix the phone's date and time, and leaves the outbox untouched |
 | *Revised:* membership removed while the outbox is full | Session is `draining`; captures made before removal upload; new captures are blocked |
@@ -189,4 +207,8 @@ client only.
 submit with backoff while the tab is open, and restores the draft on reload. Photos are
 resized in the browser before upload. This is not offline capture — a user who closes the
 browser with the server unreachable must come back to the draft — but a dropped connection
-or a crash no longer loses a form.
+or a crash no longer loses a form. Local drafts are keyed by user, so the next person on a
+borrowed device never sees them, and each is deleted once the server acknowledges the
+submission. Logout is refused while a finished submission is still unacknowledged (send it, or
+discard it explicitly after a warning); unfinished drafts are deleted at logout after a
+warning.

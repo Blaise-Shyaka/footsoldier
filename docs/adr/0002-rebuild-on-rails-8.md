@@ -15,15 +15,15 @@ memberships. Ruby 3.0 is end-of-life and Webpacker is retired.
 
 Start a new Rails 8 application (latest stable Rails and Ruby at scaffold time) in this
 repository. Tag the current state `legacy-v1`. The first implementation PR replaces the legacy
-code with the new skeleton. Legacy campaign data is migrated only if the product owner confirms
-it is needed, via a one-off importer into the generic form/submission model.
+code with the new skeleton. The legacy app holds no data that needs keeping (product owner,
+2026-11-09), so nothing is imported.
 
 ## Consequences
 
 - No time spent upgrading code that would then be deleted.
 - History and lessons are preserved (tag + legacy assessment doc).
-- Any live users of the legacy app need a cut-over plan. The legacy production config names
-  `rgdata.rw` as its host, so it was deployed; whether it is still in use is to be confirmed.
+- No data cut-over is needed. The legacy production config names `rgdata.rw` as its host, so
+  it was deployed; it is no longer running (confirmed 2026-11-09).
 - *Revised:* the legacy production config contains a literal mail username and password
   (committed 2022-08-11). Tagging preserves history, so the credential must be **rotated**
   before the reset, not merely removed ([00](../architecture/00-legacy-assessment.md)).

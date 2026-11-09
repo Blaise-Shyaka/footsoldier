@@ -15,11 +15,13 @@ rebuildable table ([ADR-0010](../adr/0010-reporting-projection.md)):
 | `repeat_index` | `null` for non-repeat fields |
 | `value_text`, `value_number`, `value_bool`, `value_time` | Exactly one is set, by field type |
 | `option_value` | For `select_one`/`select_many`: one row per selected option |
-| `captured_at`, `membership_id`, `review_status` | Denormalized for fast filtering |
+| `captured_at`, `received_at`, `membership_id`, `review_status` | Denormalized for fast filtering; `received_at` is also the partition key |
 | `corrected` | *Revised:* true when the row reflects a correction rather than the original answer |
 
-*Revised:* the table is **partitioned by month on `captured_at`** from the first migration,
-with `submissions` and `audit_events` likewise ([ADR-0010](../adr/0010-reporting-projection.md)).
+*Revised:* the table is **partitioned by month on `received_at`** (server time, carried on
+each row) from the first migration, and `audit_events` likewise; device time is not used as a
+partition key because a wrong phone clock would scatter rows across stray partitions.
+`submissions` itself is not partitioned ([ADR-0010](../adr/0010-reporting-projection.md)).
 Projection runs when the answers arrive; attachments do not gate it.
 
 Indexes on `(project_id, field_key, option_value)`, `(project_id, captured_at)` and

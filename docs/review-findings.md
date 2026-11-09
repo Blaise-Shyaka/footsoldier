@@ -6,7 +6,7 @@ Reviewer: Claude Fable 5.1, 2026-11-07. Reviewed `docs/adr` and `docs/architectu
 Revised versions of every document live in `docs/adr-revised` and
 `docs/architecture-revised`. They are copies of the originals with the changes below applied,
 so `diff -r docs/architecture docs/architecture-revised` shows exactly what moved. One new
-decision record was added: [ADR-0011](adr/0011-user-identity-email-or-phone.md).
+decision record was added: [ADR-0011](adr/0011-user-identity-is-email.md).
 
 ## Verdict
 
@@ -119,7 +119,7 @@ phone number for every user and `after_sign_in_path_for` routes promoters first,
 agents are the primary users, and many will have no email. Changing the identity key after
 Phase 0 touches users, invitations, device sessions and audit.
 
-**Fix.** New [ADR-0011](adr/0011-user-identity-email-or-phone.md): identity is email
+**Fix.** New [ADR-0011](adr/0011-user-identity-is-email.md): identity is email
 or E.164 phone, both nullable and unique; invitations by email link or SMS code through an
 in-country SMS provider configured per cell. Open question 4 becomes a recommendation.
 
@@ -264,3 +264,64 @@ the commit count and date, the unique `id_number` index, the array column
 `merchant_has_multiple_acquirers`, and the scaffold-only tests (fixtures are empty hashes).
 The Rwanda residency citation and the RWF minor-unit note match my understanding. The
 alternatives considered in each ADR are fairly stated.
+
+## Response to the review
+
+2026-11-09. Each finding was checked against the v0.1 documents and the legacy code; every
+factual claim held up. The revised documents are now the main copies in `docs/adr` and
+`docs/architecture` (the `-revised` folders described above were folded into them), with the
+changes below on top of the reviewer's revision.
+
+### Accepted as written
+
+F1–F4, F10–F12, F14–F18, and the smaller items not listed below. For F12, the product owner
+kept one account per phone and dropped multi-profile support entirely (decision 6, below).
+
+### Accepted with changes
+
+| Finding | Change to the reviewer's fix | Why |
+|---------|------------------------------|-----|
+| F5 sizing and partitioning | `submissions` is **not** partitioned. `submission_values` and `audit_events` are, keyed on server time (`received_at`, `occurred_at`). | Postgres requires every unique key on a partitioned table to include the partition key. Partitioning `submissions` by month turns the primary key into `(id, month)`, so the same id could be stored twice and `ON CONFLICT (id)` (the idempotency and `409` detection that F3 relies on) stops working. Device time is not a safe partition key because phone clocks can be years off. |
+| F6 RLS mechanism | Tests also run as a **non-superuser**. `load_async` is disabled in v1, not "until the hook exists". Invitation acceptance uses one `SECURITY DEFINER` lookup function, not a user-keyed policy. | Superusers bypass even forced RLS. `load_async` runs on executor threads that do not carry `Current`, so a checkout hook cannot see the tenant there. An invitee may have no account yet, so there is no `app.user_id` to key on. |
+| F7 identity | **Overruled by the product owner (2026-11-09).** Email stays the identity; a phone number is required for footsoldiers as a contact channel, and is a possible later second factor ([ADR-0011](adr/0011-user-identity-is-email.md), accepted). | The legacy `users` table also required an email (a Devise default), so it does not show that agents lack one. With email identity no cell needs an SMS provider in v1. |
+| F8 corrections | The original footsoldier may also author corrections when the project allows it. | In the legacy app the edits were made by promoters, not reviewers. A device-made correction is a new submission with its own UUID, so the protocol is unchanged. |
+| F9 choice lists | Publishing a form version **pins the choice-list versions** it uses. | Otherwise editing a list silently changes a published form that ADR-0005 says is immutable. |
+| F13 JSONLogic | Loose `==`/`!=` are left off the allowlist instead of being redefined as strict. `today()` evaluates to the submission's `captured_at`. | Every off-the-shelf JSONLogic library reads `==` as loose. If the server evaluated `today()` against its own clock, a rule like "date not in the future" would pass on the phone and fail on the server, raising false `validation_failed` flags. |
+| Membership uniqueness | `UNIQUE NULLS NOT DISTINCT (agency_id, user_id, client_id)`. | A plain unique index treats `NULL` client ids as distinct and allows duplicate agency-level memberships. |
+| Attribution setting | The Claude Code setting is not named in the doc. | It has been renamed across versions; check the current name when adding it. |
+
+### Added (not in the review)
+
+- **Sync stream lifecycle.** A device with no cursor, or one older than a 90-day window, gets
+  a snapshot of current state plus the current `seq` instead of replaying the agency's whole
+  history; older events are pruned. Review outcomes and earnings now travel on the same
+  stream: the old `GET /submissions?since=` timestamp had the same race as F1, plus the
+  clock problem. Added an immutable `GET /choice_list_versions/:id`.
+- **Web filler drafts** in IndexedDB are deleted on acknowledgement and on logout, because
+  browsers are often shared.
+- **F11 is more urgent than stated.** The GitHub repository is public, so the mail credential
+  has been readable by anyone since 2022-08-11. Treat it as compromised, not only as committed.
+
+### Product-owner decisions (2026-11-09)
+
+The README's open questions were answered; the documents now reflect them
+([architecture README](architecture/README.md#product-owner-decisions-2026-11-09)):
+
+1. No legacy data is migrated or archived. The importer epic (E1.12) and the
+   `legacy_import` channel are removed.
+2. A client may be served by several agencies, with one `Client` record per agency and no
+   combined data.
+3. React Native (Expo) for mobile; [ADR-0009](adr/0009-mobile-stack.md) accepted.
+4. Email is the identity, which overrules F7; a phone number is required for footsoldiers so
+   they can be reached (optional for others), but is not a login. [ADR-0011](adr/0011-user-identity-is-email.md)
+   rewritten and accepted.
+5. Single trunk `main`; `main` is fast-forwarded to `develop` in E0.1 and `develop` deleted.
+6. Footsoldiers work for several agencies and borrow each other's phones. A borrower logs in
+   with their own details: one account per phone at a time, logout only once the outbox has
+   synced, as F12 proposed. The Phase 4 multi-profile epic is removed, and a `shared_device`
+   quality flag is added so reviewers can see when one phone captured for two footsoldiers.
+7. Deployment: a demo with the full flow but no real campaign data runs on the team's Coolify
+   server, with Garage for files and backups off the server (F15 applies there too).
+   Production cells run on Linux servers in the client's country with Kamal, from the first
+   signed client; the Kamal path is proven on a throwaway VM before any client signs. No
+   Cloudflare edge services.

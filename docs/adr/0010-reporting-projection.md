@@ -15,9 +15,16 @@ arbitrary fields; adding a BI/OLAP system would add heavy components to every ce
   answered field (one per selected option for multi-selects; with `repeat_index` for repeats).
   *Revised:* processing runs when the **answers** are received, not when the last attachment
   arrives; attachment completeness is a flag, so photos trailing on 2G never delay dashboards.
-- *Revised:* `submissions`, `submission_values` and `audit_events` are **partitioned by month
-  from the first migration**. Widgets support `count`, `sum`, `avg`, `min`, `max` over a
-  numeric field, not only counts.
+- *Revised:* `submission_values` and `audit_events` are **partitioned by month from the first
+  migration**, keyed on server time (`received_at`, `occurred_at`), never device time: a phone
+  clock that is years off must not create stray partitions. Widgets support `count`, `sum`,
+  `avg`, `min`, `max` over a numeric field, not only counts.
+- *Revised:* `submissions` is **not** partitioned. Its primary key on `id` alone is what makes
+  `INSERT … ON CONFLICT (id)` idempotent and detects conflicting payloads; Postgres requires a
+  partitioned table's unique keys to include the partition key, so partitioning by time would
+  allow the same id twice. At the planning peak it holds ~36M rows a year, which one table and
+  its indexes handle. If it ever must be split, partition by range of `id` (UUIDv7 ids sort by
+  time), which keeps `id` the primary key.
 - Dashboards and exports query the projection, always through `Reporting` query objects that
   apply tenant and client-view rules.
 - The projection is **derivable**: it can be rebuilt from `submissions` at any time.

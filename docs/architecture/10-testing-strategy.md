@@ -23,10 +23,12 @@ runs on.
    under agency A never return B's rows (app scope *and* RLS with app scope deliberately
    bypassed). For every route: A's user gets 404 for B's resources. A schema lint test fails if
    a table with `agency_id` lacks an index, a forced RLS policy or a composite FK to its parent.
-   *Revised:* the suite connects as a **non-owner database role** (owners bypass RLS) and
-   includes a canary test that proves RLS is active: a raw `SELECT` with no `app.agency_id`
-   set must return zero rows. It also covers the pre-tenant paths (agency switcher,
-   invitation lookup, device login) and a `load_async` query.
+   *Revised:* the suite connects as a database role that is **neither the owner nor a
+   superuser** (both bypass RLS) and includes a canary test that proves RLS is active: a raw
+   `SELECT` with no `app.agency_id` set must return zero rows. It also covers the pre-tenant
+   paths (agency switcher, device login), the invitation-lookup function (returns one
+   invitation for a valid digest and nothing otherwise), and a test that fails if `load_async`
+   is enabled.
 2. **Idempotency suite.** Every device write endpoint called twice, concurrently and in
    sequence, with identical and conflicting payloads → exactly one record, correct status codes,
    conflicting payload quarantined. *Revised:* plus a **cursor-ordering test**: N concurrent
@@ -63,7 +65,7 @@ The Ruby runtime (server) and the TypeScript runtime (web + mobile) must agree e
 | Unit | Jest | Form runtime, renderer logic, outbox state machine |
 | Sync engine integration | Jest + a fake API server (driven by the OpenAPI spec) | Retries, partial uploads, 409, auth expiry, cursor handling |
 | Database migrations | Jest against SQLite | Upgrade from every released schema version without data loss |
-| E2E | Maestro flows on Android emulator (and iOS simulator) | Login → offline capture with photo + GPS → reconnect → synced |
+| E2E | Maestro flows on Android emulator (and iOS simulator) | Login → offline capture with photo + GPS → reconnect → synced; offline capture → logout refused while the outbox is not empty → reconnect → synced → logout → a second footsoldier logs in and sees none of the first one's data |
 | Chaos | Scripted: kill app mid-upload, toggle airplane mode, fill storage, change clock | Outbox drains exactly once |
 | Device lab | Manual pass on a low-end Android (2 GB RAM) before each release | Performance, battery, camera |
 
@@ -71,7 +73,7 @@ The Ruby runtime (server) and the TypeScript runtime (web + mobile) must agree e
 
 - **Load test** (k6) of the submission and sync endpoints before phase 2 launch, at 3× the
   assumed peak.
-- **Restore test** of backups weekly in the staging cell ([08](08-deployment-and-operations.md)).
+- **Restore test** of backups weekly: in the demo from its off-server dump, and in each production cell from its WAL backups. The first WAL restore runs in the Kamal dry run ([08](08-deployment-and-operations.md#kamal-dry-run)).
 - **Accessibility** checks (axe) on key web pages in system tests.
 
 ## CI pipeline (GitHub Actions)
@@ -79,7 +81,7 @@ The Ruby runtime (server) and the TypeScript runtime (web + mobile) must agree e
 ```mermaid
 flowchart LR
   A[push / PR] --> L[Lint<br/>rubocop-rails-omakase, eslint, prettier]
-  A --> S[Security<br/>brakeman, bundler-audit, npm audit]
+  A --> S[Security<br/>brakeman, bundler-audit, npm audit, gitleaks]
   A --> T[Rails tests<br/>unit + integration + system, Postgres service]
   A --> C[Conformance<br/>Ruby + TS runtimes]
   A --> M[Mobile tests<br/>Jest; Maestro on main nightly]

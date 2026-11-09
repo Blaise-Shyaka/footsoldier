@@ -24,17 +24,23 @@ them small.
     The plain form raises an error when the setting is absent instead of returning no rows.
   - Every tenant table has `FORCE ROW LEVEL SECURITY`. Table owners bypass RLS otherwise, and
     the Rails test database is owned by the test role, so isolation tests would pass with RLS
-    doing nothing. Tests run as a non-owner role.
+    doing nothing. Tests run as a role that is neither the owner nor a **superuser**:
+    superusers bypass RLS even when it is forced, and many local Postgres installs connect as
+    one by default.
   - The setting is applied in a **connection-pool checkout hook** driven by `Current`, not by
-    request middleware alone: any second connection (`load_async`, a second database, a job
-    run inline) would otherwise have no setting and return zero rows. `load_async` is
-    disallowed until the hook exists.
+    request middleware alone: since Rails 7.2 a request can check out more than one connection,
+    and any connection without the setting returns zero rows. `load_async` stays **disabled in
+    v1**: it runs queries on executor threads where `Current` is not set, so the hook cannot
+    see the tenant there.
   - **No transaction-mode pooler** (PgBouncer in transaction mode) in front of the app role:
     session `SET` would leak between clients. If one is ever needed, switch to `SET LOCAL`
     inside an explicit transaction per request.
   - Queries that legitimately run **before a tenant is chosen** (a user's own memberships for
-    the agency switcher, invitation token lookup, device login) get explicit user-keyed
-    policies (`user_id = current_setting('app.user_id', true)::bigint`), never `BYPASSRLS`.
+    the agency switcher, device login) get explicit user-keyed policies
+    (`user_id = NULLIF(current_setting('app.user_id', true), '')::bigint`), never `BYPASSRLS`.
+    **Invitation acceptance** cannot use them, because the invitee may have no account yet; it
+    goes through one narrow `SECURITY DEFINER` function that takes a token digest and returns
+    at most that one invitation.
   - **Composite foreign keys** on child tables, e.g.
     `(agency_id, project_id) REFERENCES projects (agency_id, id)`, so a denormalized
     `agency_id` can never disagree with its parent row.

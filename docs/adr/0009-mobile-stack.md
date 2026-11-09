@@ -1,7 +1,8 @@
 # ADR-0009: React Native (Expo) with SQLite for the mobile app
 
-- Status: Proposed — **depends on team skills; confirm before Phase 2**
-- Date: 2026-11-06
+- Status: Accepted
+- Date: 2026-11-06 (accepted 2026-11-09)
+- Deciders: Blaise Shyaka (product owner)
 
 ## Context
 

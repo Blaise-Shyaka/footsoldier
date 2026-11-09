@@ -26,9 +26,13 @@ interrupted, retried, duplicated. Reliability is the product's main selling poin
   `seq` is assigned under a per-agency transaction-scoped advisory lock so events become
   visible in sequence order. Stamping a sequence value on rows at write time is not enough:
   a lower value can commit after a higher one has already been read, and the device would
-  skip it forever.
+  skip it forever. Review outcomes and earnings changes travel on the same stream. A device
+  with no cursor, or one older than the 90-day event window, gets a snapshot of current state
+  plus the current `seq` instead of a replay; older events are pruned.
 - *Revised:* a device session belongs to the user; `GET /sync` covers every active
-  footsoldier membership and returns one cursor per agency.
+  footsoldier membership and returns one cursor per agency. Footsoldiers borrow each other's
+  phones (confirmed 2026-11-09): the app holds one account at a time, and logging out requires
+  an empty outbox, so switching accounts never strands the previous user's captures.
 - *Revised:* removing a member puts the device session into a **`draining`** state for 30
   days: it may still `PUT` submissions and attachments captured before `revoked_at` (plus
   clock tolerance) and nothing else. Hard revocation is a separate, audited owner action.

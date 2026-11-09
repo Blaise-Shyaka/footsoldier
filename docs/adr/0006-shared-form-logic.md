@@ -22,10 +22,19 @@ disagree, either the footsoldier is blocked wrongly or bad data is accepted sile
 - *Revised:* plain JSONLogic lacks date arithmetic, regex and a rule for referencing fields
   inside a repeat instance, and implementations disagree on truthiness and loose equality.
   The spec therefore defines:
-  - the **operator allowlist** (`==` is strict; `===`/`!=`/`!==`, `and`, `or`, `!`, `if`,
-    comparisons, arithmetic, `in`, `cat`, `var`, `missing`, `merge`, `map`/`filter`/`reduce`);
+  - the **operator allowlist** (`===`/`!==`, `and`, `or`, `!`, `if`, comparisons,
+    arithmetic, `in`, `cat`, `var`, `missing`, `merge`, `map`/`filter`/`reduce`). Loose `==`
+    and `!=` are **not on the list**, rather than redefined as strict: any off-the-shelf
+    JSONLogic library reads them as loose, so giving them another meaning would make our
+    definitions behave differently in every tool that is not ours. Truthiness follows
+    JSONLogic's own rule (empty array is false) and has vectors;
   - **custom operators** implemented in both runtimes: `date_diff(a, b, unit)`, `today()`,
-    `matches(str, regex)` (RE2-safe subset), and `count`/`sum`/`any`/`all` over a repeat group;
+    `matches(str, regex)` (a regex subset that behaves identically in Ruby and JavaScript: no
+    backreferences or lookaround), and `count`/`sum`/`any`/`all` over a repeat group;
+  - **deterministic time:** `today()` and any "now" value evaluate to the submission's
+    `captured_at` in the project's time zone, on the device *and* on the server. Evaluated
+    against the server's clock, a rule like "date not in the future" would pass on the phone
+    and fail on the server days later, raising false `validation_failed` flags;
   - **`var` scoping:** inside a repeat, `var` resolves relative to the current instance;
     a leading `/` addresses the root (`{"var": "/merchant_name"}`); `$index` is the current
     repeat index.
