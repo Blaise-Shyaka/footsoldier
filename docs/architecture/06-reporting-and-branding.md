@@ -1,0 +1,116 @@
+# 06 — Reporting, dashboards and branding
+
+## Analytics data model
+
+Submissions store answers as JSONB exactly as captured. Aggregating over JSONB across many
+form versions is slow and awkward, so a job projects each processed submission into a typed,
+rebuildable table ([ADR-0010](../adr/0010-reporting-projection.md)):
+
+`submission_values`
+
+| Column | Notes |
+|--------|-------|
+| `agency_id`, `project_id`, `form_id`, `form_version_id`, `submission_id` | Scoping and joins |
+| `field_key` | Path for nested/repeat fields, e.g. `tests[1].result` → stored as `tests.result` + `repeat_index` |
+| `repeat_index` | `null` for non-repeat fields |
+| `value_text`, `value_number`, `value_bool`, `value_time` | Exactly one is set, by field type |
+| `option_value` | For `select_one`/`select_many`: one row per selected option |
+| `captured_at`, `received_at`, `membership_id`, `review_status` | Denormalized for fast filtering; `received_at` is also the partition key |
+| `corrected` | *Revised:* true when the row reflects a correction rather than the original answer |
+
+*Revised:* the table is **partitioned by month on `received_at`** (server time, carried on
+each row) from the first migration, and `audit_events` likewise; device time is not used as a
+partition key because a wrong phone clock would scatter rows across stray partitions.
+`submissions` itself is not partitioned ([ADR-0010](../adr/0010-reporting-projection.md)).
+Projection runs when the answers arrive; attachments do not gate it.
+
+Indexes on `(project_id, field_key, option_value)`, `(project_id, captured_at)` and
+`(project_id, membership_id)` cover the common widgets. The projection can be dropped and
+rebuilt from `submissions` at any time (`bin/rails reporting:rebuild PROJECT=…`), so it is
+never the source of truth.
+
+**Cross-version consistency:** because field keys are stable across versions, a question asked
+in v1 and v3 aggregates together. Renaming a key is a deliberate "new question". *Revised:*
+a key's type cannot change between versions (publish lint), so each key maps to exactly one
+`value_*` column; option labels are resolved from the latest published version that carries
+the value, so a retired option still renders in historical breakdowns.
+
+When a project outgrows direct queries (millions of rows), add per-project daily rollup tables
+maintained by the same job — still Postgres, no new component.
+
+## Dashboards
+
+A `Dashboard` belongs to a project and has an `audience` (`agency` or `client`) and an ordered
+list of widgets. Each widget is a type plus a JSON config, rendered server-side with a Stimulus
+chart controller.
+
+| Widget | Example |
+|--------|---------|
+| KPI tile | Total accepted submissions; % "tested & approved"; *Revised:* `sum`/`avg`/`min`/`max` of a numeric field (litres fuelled, amount sold) |
+| Breakdown (bar/pie) | Answers to `upi_accepted`, optionally split by another field |
+| Time series | Submissions per day, per footsoldier; *Revised:* or a numeric aggregate per day (Engen: fuel value per day) |
+| Leaderboard / table | Per-footsoldier counts, flags, earnings (agency only); *Revised:* or a numeric aggregate per footsoldier |
+| Map | Submission locations (MapLibre, clustered) — only if location sharing is on |
+| Submissions table | Filterable rows with only visible fields; drill-down |
+| Text | Agency commentary for the client |
+
+Every dashboard has global filters: date range, footsoldier (agency only), review status, and
+any `select_one` field.
+
+Default dashboards are generated from the form definition on first publish (one breakdown per
+choice field, a KPI, a time series), so a project has a useful view with zero configuration.
+
+### Client view: the agency decides
+
+Per project, the agency configures a **client view**:
+
+- which dashboards are shared with the client,
+- which fields are visible (default from the field's `client_visible`, PII off by default),
+- whether the raw submissions table and exports are available,
+- whether locations are shown,
+- whether footsoldiers appear by name or pseudonym ("Agent 07" — *Revised:* assigned once
+  per membership per project and stored, so it is stable across reloads and exports),
+- whether pending (unreviewed) submissions count.
+
+The `Reporting::ClientScope` query object applies these rules; every client-facing query goes
+through it, and system tests assert that hidden fields never reach client HTML or exports.
+
+### Real time
+
+When a submission is processed, the job broadcasts a Turbo Stream on
+`project:<id>:dashboard` (Solid Cable on Postgres). *Revised:* the broadcast carries a
+**refresh signal only, never rendered data** — a broadcast has no tenant, role or client-view
+context, so rendering HTML into it is the classic way to leak a hidden field. Each subscriber
+re-fetches its widgets in its own request context, debounced (at most once every few seconds
+per project) to avoid storms during peaks. Target: new data visible in ≤ 60 s p95, measured
+from `received_at`, not from the last attachment.
+
+### Exports
+
+CSV and XLSX (`caxlsx`), generated by a job into the object store and delivered via a signed,
+expiring link. Column headers use field labels in the chosen locale; repeat groups become
+either long format (one row per repeat) or wide format, chosen at export time. Exports respect
+the client view rules and are audited. *Revised:* export files contain personal data and are
+**deleted from the object store after 7 days**; the link expires with them.
+
+### AI insights (later phase)
+
+A client-facing assistant that explains what a dashboard shows. It works on **aggregates
+only** (the numbers the widgets already compute), never row-level answers, and only when the
+agency enables it and the cell's AI provider is allowed for that jurisdiction
+([09](09-optional-features.md)).
+
+## Branding
+
+| Entity | Fields |
+|--------|--------|
+| `Theme` | owner (agency or client), logo (Active Storage), `primary`, `secondary`, `accent` colours, `font` (from an allowlist), optional `custom_domain` (later) |
+
+- Themes compile to **CSS custom properties** injected in the layout; Tailwind theme tokens
+  (`brand-primary`, `brand-secondary`, …) map to those variables, so there are no per-tenant
+  CSS builds.
+- Contrast is checked on save (WCAG AA against text colours); the admin is warned and an
+  accessible text colour is derived automatically.
+- Agency staff and footsoldiers see the **agency** theme. Client users see the **client**
+  theme for their dashboards (with a small "powered by" agency mark if the agency wants it).
+- Logos are served through the cell, resized to a few fixed variants.
