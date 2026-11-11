@@ -1,0 +1,52 @@
+name: Task
+description: A technical change small enough for one pull request, inside a story.
+labels: ["type:task"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Title the task with the change, in the imperative ("Add …", "Replace …"). Aim for one pull request of under about 400 changed lines, excluding generated files.
+        After creating it, add it as a sub-issue of its story and add its `module:`, `phase:` and `priority:` labels ([doc 12](https://github.com/Blaise-Shyaka/footsoldier/blob/main/docs/architecture/12-delivery-workflow.md#issues)).
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Why the change is needed, with links to the docs, ADRs or issues behind it.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: What changes, and what stays out.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance criteria
+      description: What a reviewer checks to accept the pull request.
+    validations:
+      required: true
+  - type: textarea
+    id: test-plan
+    attributes:
+      label: Test plan
+      description: Which test layers from [doc 10](https://github.com/Blaise-Shyaka/footsoldier/blob/main/docs/architecture/10-testing-strategy.md) cover the change.
+    validations:
+      required: true
+  - type: input
+    id: parent-story
+    attributes:
+      label: Parent story
+      description: The story's issue. Also add this task as a sub-issue of it.
+      placeholder: "#99"
+    validations:
+      required: true
+  - type: textarea
+    id: definition-of-done
+    attributes:
+      label: Definition of done
+      value: The [definition of done in doc 12](https://github.com/Blaise-Shyaka/footsoldier/blob/main/docs/architecture/12-delivery-workflow.md#definition-of-done-every-task).
+    validations:
+      required: true
