@@ -2,8 +2,9 @@
 
 Phases are ordered by risk and value: first the foundations that are expensive to change later
 (tenancy, form format, idempotent submissions), then a usable web product, then offline mobile,
-then paid extras. Each epic below becomes a GitHub issue with the `epic` label; stories and
-tasks are created under it when the phase starts.
+then paid extras. Each epic below becomes a GitHub issue with the `type:epic` label; its
+stories, and their tasks, are created as sub-issues when the phase starts
+([12](12-delivery-workflow.md#issues)).
 
 ## Phase 0 — Foundations
 

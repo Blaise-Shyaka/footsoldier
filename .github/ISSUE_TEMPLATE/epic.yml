@@ -1,0 +1,46 @@
+name: Epic
+description: A roadmap epic. Its stories are added as sub-issues.
+title: "[Epic] "
+labels: ["type:epic"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Name the epic as the [roadmap](https://github.com/Blaise-Shyaka/footsoldier/blob/main/docs/architecture/11-roadmap.md) does, for example `[Epic] E1.1 Memberships and invitations`.
+        After creating it, add its `phase:` label and any `module:` labels. Stories are added as sub-issues of this epic, not as a task list ([doc 12](https://github.com/Blaise-Shyaka/footsoldier/blob/main/docs/architecture/12-delivery-workflow.md#issues)).
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: The outcome the epic delivers, in one or two sentences.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: What is in, as the roadmap lists it, and what is out. Note anything already done or moved to another epic.
+    validations:
+      required: true
+  - type: textarea
+    id: architecture-references
+    attributes:
+      label: Architecture references
+      description: Links to the docs and ADRs the epic follows.
+    validations:
+      required: true
+  - type: textarea
+    id: stories
+    attributes:
+      label: Stories
+      description: Stories are sub-issues of this epic. Add them from the epic's page once it exists; do not list them here.
+      value: Linked below as sub-issues.
+    validations:
+      required: true
+  - type: textarea
+    id: exit-criteria
+    attributes:
+      label: Exit criteria
+      description: What must be true to close the epic.
+    validations:
+      required: true

@@ -1,0 +1,46 @@
+name: Story
+description: A user-facing outcome inside an epic. Its tasks are added as sub-issues.
+labels: ["type:story"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Title the story with the outcome from the user's view.
+        After creating it, add it as a sub-issue of its epic and add its `phase:` and `priority:` labels (and `module:` when one module owns it). Tasks are added as sub-issues of this story, not as a task list ([doc 12](https://github.com/Blaise-Shyaka/footsoldier/blob/main/docs/architecture/12-delivery-workflow.md#issues)).
+  - type: textarea
+    id: user-story
+    attributes:
+      label: User story
+      description: As a … I want … so that …
+      placeholder: As an agency admin, I want …, so that …
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance criteria
+      description: One Given/When/Then per line.
+      placeholder: "- Given …, when …, then …"
+    validations:
+      required: true
+  - type: textarea
+    id: out-of-scope
+    attributes:
+      label: Out of scope
+      description: What a reader might expect here but belongs elsewhere, with a link if it has an issue.
+  - type: input
+    id: parent-epic
+    attributes:
+      label: Parent epic
+      description: The epic's roadmap number and issue. Also add this story as a sub-issue of it.
+      placeholder: "E0.1 #60"
+    validations:
+      required: true
+  - type: textarea
+    id: tasks
+    attributes:
+      label: Tasks
+      description: Tasks are sub-issues of this story. Add them from the story's page once it exists; do not list them here.
+      value: Linked below as sub-issues.
+    validations:
+      required: true

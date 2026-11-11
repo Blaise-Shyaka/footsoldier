@@ -63,27 +63,34 @@ Refs #<issue>
 
 ## Issues
 
-Three templates (`.github/ISSUE_TEMPLATE/`):
+Three issue forms (`.github/ISSUE_TEMPLATE/`):
 
 **Epic** — title `[Epic] <name>`; sections: Goal, Scope (in/out), Architecture references
-(links to docs/ADRs), Stories (task list), Exit criteria.
+(links to docs/ADRs), Stories, Exit criteria.
 
 **Story** — title `<outcome from the user's view>`; sections: User story
 (*As a … I want … so that …*), Acceptance criteria (Given/When/Then), Out of scope,
-Parent epic, Tasks (task list).
+Parent epic, Tasks.
 
 **Task** — title `<imperative technical change>`; sections: Context (why, links), Scope
 (what changes), Acceptance criteria, Test plan (which test layers from [10](10-testing-strategy.md)),
 Parent story, Definition of done.
 
+Child issues are GitHub **sub-issues**, not task lists: each story is a sub-issue of its
+epic, and each task a sub-issue of its story. GitHub then shows the parent and the progress
+on both issues. The Stories and Tasks sections only say "Linked below as sub-issues"; the
+Parent epic and Parent story sections name the parent for someone reading the body.
+
 Labels: `type:epic|story|task|bug`, `module:<name>`, `phase:0..4`, `priority:p0..p3`,
-`needs:decision`.
+`needs:decision`. Each form applies its `type:` label; the others are added after the issue
+is created, because a form can only apply fixed labels.
 
 ## Pull requests
 
 The description follows the local `writing-for-people-and-agents` skill: the sections below
 are for people, and details only an agent needs go in collapsed `<details>` sections.
-`Closes #<task>` only when an issue exists. Template (`.github/pull_request_template.md`):
+`Closes #<task>` only when an issue exists. Template (`.github/pull_request_template.md`,
+where the prompts below are HTML comments so they do not show in the description):
 
 ```
 ## What
