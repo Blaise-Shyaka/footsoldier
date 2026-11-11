@@ -1,61 +1,29 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>RGData</title>
+    <title><%= content_for(:title) || "Footsoldier" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Footsoldier">
+    <meta name="mobile-web-app-capable" content="yes">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
-    <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
-    <%= stylesheet_pack_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
-    <%= javascript_pack_tag 'application', 'data-turbolinks-track': 'reload' %>
+    <%= yield :head %>
+
+    <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
+    <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
+
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon.png">
+
+    <%# Includes all stylesheet files in app/assets/stylesheets %>
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_include_tag "application", "data-turbo-track": "reload", type: "module" %>
   </head>
 
   <body>
-  <nav class="bg-gray-800">
-  <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
-    <div class="relative flex items-center justify-between h-16">
-      <div class="flex-1 flex items-center sm:items-stretch sm:justify-start">
-        <div class="flex-shrink-0 flex items-center">
-          <h2 class="text-white text-3xl font-black">RG Data</h2>
-        </div>
-      </div>
-      <div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-        <button type="button" class="hidden bg-gray-800 p-1 rounded-full text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
-          <span class="sr-only">View notifications</span>
-          <!-- Heroicon name: outline/bell -->
-          <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-          </svg>
-        </button>
-        <div>
-          <% if current_user&.bk_arena_admin %>
-            <%= link_to "General Report", bk_arena_reports_general_report_path, { style: 'color: white', :class => "ml-40 text-white hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded" } %>
-            <%= link_to "Individual Performance", bk_arena_reports_individual_performance_path, { style: 'color: white', :class => "ml-4 text-white hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded" } %>
-          <% end %>
-        </div>
-        <div>
-          <% if current_user %>
-            <%= link_to "Sign out", destroy_user_session_path, { style: 'color: white', method: :delete, :class => "ml-40 text-white bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded" } %>
-          <% else %>
-            <%= link_to "Log In", new_user_session_path, { style: 'color: white', class: "text-white ml-4 font-bold py-2 px-4 rounded"} %>
-            <%= link_to "Sign Up", new_user_registration_path, { style: 'color: white', :class => "ml-4 text-white bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded" } %>
-          <% end %>
-        </div>
-
-        <!-- Profile dropdown -->
-        <div class="hidden ml-3 relative">
-          <div>
-            <button type="button" class="bg-gray-800 flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
-              <span class="sr-only">Open user menu</span>
-              <img class="h-8 w-8 rounded-full" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="">
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  </nav>
     <%= yield %>
   </body>
 </html>

@@ -1,2 +1,0 @@
-class UnionPayController < ApplicationController
-end
