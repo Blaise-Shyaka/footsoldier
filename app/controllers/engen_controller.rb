@@ -1,2 +1,0 @@
-class EngenController < ApplicationController
-end

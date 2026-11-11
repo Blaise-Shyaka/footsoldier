@@ -1,2 +1,0 @@
-class BkArenaController < ApplicationController
-end
