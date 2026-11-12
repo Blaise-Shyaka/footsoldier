@@ -76,9 +76,11 @@ jobs:
         # The oldest PostgreSQL the app supports (doc 02), so tests never rely on a newer
         # server's features.
         image: postgres:17
+        # No password: only this job can reach the container, and it is discarded after the
+        # run. A password here would look like a leaked credential to secret scanners.
         env:
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
+          POSTGRES_HOST_AUTH_METHOD: trust
         ports:
           - 5432:5432
         options: --health-cmd="pg_isready" --health-interval=10s --health-timeout=5s --health-retries=5
@@ -108,7 +110,7 @@ jobs:
       - name: Run the tests
         env:
           RAILS_ENV: test
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432
+          DATABASE_URL: postgres://postgres@localhost:5432
         run: bin/rails db:test:prepare test:all
 
       - name: Keep screenshots from failed system tests
