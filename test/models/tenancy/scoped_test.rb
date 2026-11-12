@@ -1,20 +1,32 @@
 require "test_helper"
 
 class Tenancy::ScopedTest < ActiveSupport::TestCase
-  # A tenant-owned model for these tests only. Its table is created inside each test's
-  # transaction, so PostgreSQL drops it again when the test rolls back.
+  # A tenant-owned model for these tests only. The suite's database role may not create tables,
+  # so the owner role creates this one before each test and drops it after the test's
+  # transaction has rolled back.
   class Note < ApplicationRecord
     self.table_name = "tenancy_scoped_test_notes"
     include Tenancy::Scoped
   end
 
-  setup do
-    Note.with_connection do |connection|
+  def before_setup
+    with_owner_connection do |connection|
+      connection.drop_table :tenancy_scoped_test_notes, if_exists: true
       connection.create_table :tenancy_scoped_test_notes do |t|
         t.references :agency, null: false, foreign_key: true
         t.string :body, null: false
       end
     end
+    super
+  end
+
+  def after_teardown
+    super
+  ensure
+    with_owner_connection { |connection| connection.drop_table :tenancy_scoped_test_notes, if_exists: true }
+  end
+
+  setup do
     Note.reset_column_information
 
     @alpha = tenancy_agencies(:alpha)

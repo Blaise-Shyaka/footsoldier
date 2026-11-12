@@ -70,14 +70,21 @@ jobs:
     name: Tests
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    # psql and the test suite reach the service container through these. Rails connects as the
+    # roles in config/database.yml; anything without a role of its own (creating the roles, and
+    # the tests that need a superuser) connects as postgres.
+    env:
+      PGHOST: localhost
+      PGUSER: postgres
 
     services:
       postgres:
         # The oldest PostgreSQL the app supports (doc 02), so tests never rely on a newer
         # server's features.
         image: postgres:17
-        # No password: only this job can reach the container, and it is discarded after the
-        # run. A password here would look like a leaked credential to secret scanners.
+        # No passwords, for postgres or for the roles the app uses: only this job can reach the
+        # container, and it is discarded after the run. A password here would look like a leaked
+        # credential to secret scanners.
         env:
           POSTGRES_USER: postgres
           POSTGRES_HOST_AUTH_METHOD: trust
@@ -105,12 +112,16 @@ jobs:
       - name: Install JavaScript packages
         run: yarn install --frozen-lockfile
 
+      # The app runs as footsoldier_app and migrates as footsoldier_owner, as everywhere else
+      # ("Database roles" in README.md). The suite refuses to run as a superuser.
+      - name: Create the database roles
+        run: psql --dbname=postgres --no-psqlrc --set=ON_ERROR_STOP=1 --file=db/roles.sql
+
       # test:all runs the unit, integration and system tests. System tests run in the headless
       # Chrome that GitHub's Ubuntu runners include.
       - name: Run the tests
         env:
           RAILS_ENV: test
-          DATABASE_URL: postgres://postgres@localhost:5432
         run: bin/rails db:test:prepare test:all
 
       - name: Keep screenshots from failed system tests
