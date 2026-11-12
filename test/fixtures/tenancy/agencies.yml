@@ -1,0 +1,9 @@
+alpha:
+  slug: alpha
+  name: Alpha Field Research
+  data_region: rw
+
+bravo:
+  slug: bravo
+  name: Bravo Surveys
+  data_region: rw
