@@ -39,8 +39,9 @@ version manager such as mise or rbenv instead, or set `BUNDLE_PATH` to a directo
 bin/rails test
 ```
 
-`bin/ci` runs everything CI checks: RuboCop, bundler-audit, `yarn audit`, Brakeman, the tests
-and the seeds.
+GitHub Actions ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) runs RuboCop,
+Brakeman, bundler-audit and all the tests, system tests included, on every pull request and
+every push to `main`. `bin/ci` runs the same checks locally, plus `yarn audit` and the seeds.
 
 ## Production configuration
 
