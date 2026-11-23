@@ -8,7 +8,7 @@ the `legacy-v1` tag.
 
 ## Requirements
 
-- Ruby 4.0.9 (`.ruby-version`)
+- Ruby 4.0.10 (`.ruby-version`)
 - PostgreSQL 17 or later, running locally and reachable as your OS user
 - Node.js 26 (`.node-version`) and Yarn 1.22
 
