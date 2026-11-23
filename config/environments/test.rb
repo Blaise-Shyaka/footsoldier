@@ -50,4 +50,10 @@ Rails.application.configure do
 
   # Raise error when a before_action's only/except options reference missing actions.
   config.action_controller.raise_on_missing_callback_actions = true
+
+  # After loading fixtures, Rails checks their foreign keys by updating pg_catalog.pg_constraint,
+  # which only a superuser may do, and the suite never runs as one (config/database.yml). The
+  # check adds nothing here: the suite's role cannot disable the triggers that enforce foreign
+  # keys either, so PostgreSQL rejects a fixture row that points at a missing row on insert.
+  config.active_record.verify_foreign_keys_for_fixtures = false
 end
